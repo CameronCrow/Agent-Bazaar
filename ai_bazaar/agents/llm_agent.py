@@ -1014,7 +1014,7 @@ class TestAgent(LLMAgent):
         for attempt in range(max_retries):
             try:
                 self.llm.send_msg("", 'This is a test. Output "test" in response.')
-                print(f"Successfully connected to f{args.service} LLM service")
+                print(f"Successfully connected to {args.service} LLM service")
                 return  # Exit on success
             except Exception as e:
                 if attempt == max_retries - 1:  # Final attempt failed
