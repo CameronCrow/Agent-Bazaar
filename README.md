@@ -600,8 +600,6 @@ See `OPEN_WEIGHTS_MODELS.md` for the full list of tested open-weight models and 
 
 ## Citation
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 This framework builds on the LLM Economist:
 
 ```bibtex
