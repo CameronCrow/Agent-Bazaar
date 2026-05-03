@@ -243,7 +243,7 @@ def create_argument_parser():
     parser.add_argument(
         "--firm-initial-cash", type=float, default=500.0, help="Initial cash for firms"
     )
-    
+
     parser.add_argument(
         "--firm-markup",
         type=float,

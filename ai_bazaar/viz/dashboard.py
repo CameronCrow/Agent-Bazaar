@@ -623,8 +623,8 @@ else:
             st.table(diary_all_df)
         else:
             st.info(f"No diary entries for {selected_consumer} across the loaded state files.")
-            
-    # CHARTS TAB: Time-series charts across all state files.            
+
+    # CHARTS TAB: Time-series charts across all state files.
     with tab4:
         df_builder = DataFrameBuilder(states=states)
 

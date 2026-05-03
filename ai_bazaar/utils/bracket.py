@@ -24,7 +24,7 @@ def get_num_brackets(bracket_setting: str):
         return 7
     else:
         raise ValueError('Invalid bracket setting:', bracket_setting)
-    
+
 def get_default_rates(bracket_setting: str):
     return [50 for i in range(get_num_brackets(bracket_setting))]
 
@@ -35,7 +35,7 @@ def get_brackets(bracket_setting: str):
     elif bracket_setting == 'three':
         brackets = [0,90000,159100,10000000]
     elif bracket_setting == 'US_FED':
-        brackets = [0,11600,47150,100525,191950,243725,609350,10000000] 
+        brackets = [0,11600,47150,100525,191950,243725,609350,10000000]
     else:
         raise ValueError('Invalid bracket setting:', bracket_setting)
     return brackets

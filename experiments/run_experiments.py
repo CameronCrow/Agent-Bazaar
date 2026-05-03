@@ -13,7 +13,7 @@ def run_command(cmd: List[str], description: str = ""):
     """Run a command and handle errors."""
     print(f"Running: {description}")
     print(f"Command: {' '.join(cmd)}")
-    
+
     try:
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
         print(f"Success: {description}")
@@ -38,16 +38,16 @@ def rational_agents_experiment(args):
         "--prompt-algo", args.prompt_algo,
         "--llm", args.llm
     ]
-    
+
     if args.wandb:
         base_cmd.append("--wandb")
-    
+
     if args.port:
         base_cmd.extend(["--port", str(args.port)])
-    
+
     if args.service:
         base_cmd.extend(["--service", args.service])
-    
+
     return run_command(base_cmd, "Rational Agents Experiment")
 
 
@@ -68,16 +68,16 @@ def bounded_rational_experiment(args):
         "--percent-alt", str(args.percent_alt),
         "--percent-adv", str(args.percent_adv)
     ]
-    
+
     if args.wandb:
         base_cmd.append("--wandb")
-    
+
     if args.port:
         base_cmd.extend(["--port", str(args.port)])
-    
+
     if args.service:
         base_cmd.extend(["--service", args.service])
-    
+
     return run_command(base_cmd, "Bounded Rational Agents Experiment")
 
 
@@ -95,23 +95,23 @@ def democratic_voting_experiment(args):
         "--prompt-algo", args.prompt_algo,
         "--llm", args.llm
     ]
-    
+
     if args.wandb:
         base_cmd.append("--wandb")
-    
+
     if args.port:
         base_cmd.extend(["--port", str(args.port)])
-    
+
     if args.service:
         base_cmd.extend(["--service", args.service])
-    
+
     return run_command(base_cmd, "Democratic Voting Experiment")
 
 
 def llm_comparison_experiment(args):
     """Run LLM comparison experiment."""
     models = ["gpt-4o-mini", "llama3:8b", "meta-llama/llama-3.1-8b-instruct"]
-    
+
     for model in models:
         base_cmd = [
             sys.executable, "-m", "ai_bazaar.main",
@@ -125,23 +125,23 @@ def llm_comparison_experiment(args):
             "--prompt-algo", args.prompt_algo,
             "--llm", model
         ]
-        
+
         if args.wandb:
             base_cmd.append("--wandb")
-        
+
         if args.port and "llama" in model:
             base_cmd.extend(["--port", str(args.port)])
-        
+
         if args.service and "llama" in model:
             base_cmd.extend(["--service", args.service])
-        
+
         run_command(base_cmd, f"LLM Comparison - {model}")
 
 
 def scalability_experiment(args):
     """Run scalability experiment with different numbers of agents."""
     agent_counts = [5, 10, 25, 50, 100]
-    
+
     for num_agents in agent_counts:
         base_cmd = [
             sys.executable, "-m", "ai_bazaar.main",
@@ -155,16 +155,16 @@ def scalability_experiment(args):
             "--prompt-algo", args.prompt_algo,
             "--llm", args.llm
         ]
-        
+
         if args.wandb:
             base_cmd.append("--wandb")
-        
+
         if args.port:
             base_cmd.extend(["--port", str(args.port)])
-        
+
         if args.service:
             base_cmd.extend(["--service", args.service])
-        
+
         run_command(base_cmd, f"Scalability Test - {num_agents} agents")
 
 
@@ -172,11 +172,11 @@ def scalability_experiment(args):
 def tax_year_ablation_experiment(args):
     """Run tax year length ablation experiment."""
     timescales = [5, 10, 25, 50, 100]
-    
+
     for timescale in timescales:
         # Adjust max_timesteps to have similar number of tax years
         max_timesteps = timescale * 20  # 20 tax years
-        
+
         base_cmd = [
             sys.executable, "-m", "ai_bazaar.main",
             "--scenario", "rational",
@@ -189,30 +189,30 @@ def tax_year_ablation_experiment(args):
             "--prompt-algo", args.prompt_algo,
             "--llm", args.llm
         ]
-        
+
         if args.wandb:
             base_cmd.append("--wandb")
-        
+
         if args.port:
             base_cmd.extend(["--port", str(args.port)])
-        
+
         if args.service:
             base_cmd.extend(["--service", args.service])
-        
+
         run_command(base_cmd, f"Tax Year Ablation - {timescale} steps")
 
 
 def main():
     """Main experiment runner."""
     parser = argparse.ArgumentParser(description="Run LLM Economist experiments")
-    
+
     # Experiment selection
     parser.add_argument("--experiment", type=str, default="all",
-                        choices=["rational", "bounded", "democratic", 
-                                "llm_comparison", "scalability", 
+                        choices=["rational", "bounded", "democratic",
+                                "llm_comparison", "scalability",
                                 "tax_year_ablation", "all"],
                         help="Which experiment to run")
-    
+
     # Common parameters
     parser.add_argument("--num-agents", type=int, default=5,
                         help="Number of agents")
@@ -232,7 +232,7 @@ def main():
     parser.add_argument("--service", type=str, default="vllm",
                         choices=["vllm", "ollama"],
                         help="Local LLM service")
-    
+
     # Bounded rationality parameters
     parser.add_argument("--percent-ego", type=int, default=100,
                         help="Percentage of egotistical agents")
@@ -240,36 +240,36 @@ def main():
                         help="Percentage of altruistic agents")
     parser.add_argument("--percent-adv", type=int, default=0,
                         help="Percentage of adversarial agents")
-    
+
     # Logging
     parser.add_argument("--wandb", action="store_true",
                         help="Enable WandB logging")
-    
+
     args = parser.parse_args()
-    
+
     # Run selected experiment(s)
     if args.experiment == "rational" or args.experiment == "all":
         rational_agents_experiment(args)
-    
+
     if args.experiment == "bounded" or args.experiment == "all":
         bounded_rational_experiment(args)
-    
+
     if args.experiment == "democratic" or args.experiment == "all":
         democratic_voting_experiment(args)
-    
+
     if args.experiment == "llm_comparison" or args.experiment == "all":
         llm_comparison_experiment(args)
-    
+
     if args.experiment == "scalability" or args.experiment == "all":
         scalability_experiment(args)
-    
 
-    
+
+
     if args.experiment == "tax_year_ablation" or args.experiment == "all":
         tax_year_ablation_experiment(args)
-    
+
     print("Experiments completed!")
 
 
 if __name__ == "__main__":
-    main() 
+    main()

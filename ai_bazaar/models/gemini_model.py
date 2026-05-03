@@ -11,14 +11,14 @@ from .base import BaseLLMModel
 
 class GeminiModel(BaseLLMModel):
     """Gemini model implementation using Google's Gemini API."""
-    
-    def __init__(self, model_name: str = "gemini-2.5-flash", 
+
+    def __init__(self, model_name: str = "gemini-2.5-flash",
                  api_key: Optional[str] = None,
                  max_tokens: int = 1000, temperature: float = 0.7,
                  project: Optional[str] = None, location: Optional[str] = None):
         """
         Initialize the Gemini model.
-        
+
         Args:
             model_name: Name of the Gemini model to use
             api_key: Google API key (if None, will look for GOOGLE_API_KEY env var)
@@ -49,28 +49,28 @@ class GeminiModel(BaseLLMModel):
                     "or GOOGLE_APPLICATION_CREDENTIALS."
                 )
             self.client = genai.Client(vertexai=True, project=_project, location=_location)
-        
-    def send_msg(self, system_prompt: str, user_prompt: str, 
-                 temperature: Optional[float] = None, 
+
+    def send_msg(self, system_prompt: str, user_prompt: str,
+                 temperature: Optional[float] = None,
                  json_format: bool = False) -> Tuple[str, bool]:
         """
         Send a message to the Gemini API and get a response.
-        
+
         Args:
             system_prompt: System prompt to set the context
             user_prompt: User prompt/question
             temperature: Temperature override for this call
             json_format: Whether to request JSON format response
-            
+
         Returns:
             Tuple of (response_text, is_json_valid)
         """
         if temperature is None:
             temperature = self.temperature
-            
+
         retry_count = 0
         max_retries = 10
-        
+
         # Combine system and user prompts
         combined_prompt = f"{system_prompt}\n\n{user_prompt}"
         # Add JSON format instruction if requested
@@ -106,7 +106,7 @@ class GeminiModel(BaseLLMModel):
                     return self._extract_json(message)
 
                 return message, False
-                
+
             except Exception as e:
                 err_str = str(e).lower()
                 is_429 = (
@@ -127,9 +127,9 @@ class GeminiModel(BaseLLMModel):
                     if retry_count >= max_retries:
                         raise
                     sleep(1)
-        
+
         raise Exception(f"Failed to get response after {max_retries} retries")
-    
+
     @classmethod
     def get_available_models(cls):
         """Get list of available Gemini models."""
@@ -142,7 +142,7 @@ class GeminiModel(BaseLLMModel):
             "gemini-1.0-pro",
             "gemini-1.0-pro-latest"
         ]
-    
+
     def list_models(self):
         """List all available models dynamically."""
         try:
@@ -155,13 +155,13 @@ class GeminiModel(BaseLLMModel):
 
 class GeminiModelViaOpenRouter(BaseLLMModel):
     """Gemini model implementation using OpenRouter as a proxy."""
-    
-    def __init__(self, model_name: str = "google/gemini-flash-1.5", 
+
+    def __init__(self, model_name: str = "google/gemini-flash-1.5",
                  api_key: Optional[str] = None,
                  max_tokens: int = 1000, temperature: float = 0.7):
         """
         Initialize the Gemini model via OpenRouter.
-        
+
         Args:
             model_name: Name of the Gemini model on OpenRouter
             api_key: OpenRouter API key (if None, will look for OPENROUTER_API_KEY env var)
@@ -169,29 +169,29 @@ class GeminiModelViaOpenRouter(BaseLLMModel):
             temperature: Temperature for sampling
         """
         super().__init__(model_name, max_tokens, temperature)
-        
+
         # Import OpenRouter model
         from .openrouter_model import OpenRouterModel
-        
+
         self.openrouter_client = OpenRouterModel(
             model_name=model_name,
             api_key=api_key,
             max_tokens=max_tokens,
             temperature=temperature
         )
-        
-    def send_msg(self, system_prompt: str, user_prompt: str, 
-                 temperature: Optional[float] = None, 
+
+    def send_msg(self, system_prompt: str, user_prompt: str,
+                 temperature: Optional[float] = None,
                  json_format: bool = False) -> Tuple[str, bool]:
         """
         Send a message to the Gemini API via OpenRouter and get a response.
-        
+
         Args:
             system_prompt: System prompt to set the context
             user_prompt: User prompt/question
             temperature: Temperature override for this call
             json_format: Whether to request JSON format response
-            
+
         Returns:
             Tuple of (response_text, is_json_valid)
         """
@@ -201,7 +201,7 @@ class GeminiModelViaOpenRouter(BaseLLMModel):
             temperature=temperature,
             json_format=json_format
         )
-    
+
     @classmethod
     def get_available_models(cls):
         """Get list of available Gemini models on OpenRouter."""
@@ -209,4 +209,4 @@ class GeminiModelViaOpenRouter(BaseLLMModel):
             "google/gemini-pro-1.5",
             "google/gemini-flash-1.5",
             "google/gemini-pro"
-        ] 
+        ]

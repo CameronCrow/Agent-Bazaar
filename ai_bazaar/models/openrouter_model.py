@@ -30,7 +30,7 @@ def _openrouter_error_body_for_log(response: Optional[requests.Response]) -> str
 
 class OpenRouterModel(BaseLLMModel):
     """OpenRouter model implementation for accessing multiple models through OpenRouter API."""
-    
+
     def __init__(self, model_name: str = "meta-llama/llama-3.1-8b-instruct",
                  api_key: Optional[str] = None,
                  max_tokens: int = 1000,
@@ -38,7 +38,7 @@ class OpenRouterModel(BaseLLMModel):
                  provider_order: Optional[list[str]] = None):
         """
         Initialize the OpenRouter model.
-        
+
         Args:
             model_name: Name of the model to use on OpenRouter
             api_key: OpenRouter API key (if None, will look for OPENROUTER_API_KEY env var)
@@ -47,11 +47,11 @@ class OpenRouterModel(BaseLLMModel):
             provider_order: Optional preferred OpenRouter provider order
         """
         super().__init__(model_name, max_tokens, temperature)
-        
+
         # Get API key from parameter or environment
         if api_key is None:
             api_key = os.getenv('OPENROUTER_API_KEY')
-        
+
         if not api_key:
             raise ValueError("OpenRouter API key not found. Set OPENROUTER_API_KEY environment variable or pass api_key parameter.")
 
@@ -69,7 +69,7 @@ class OpenRouterModel(BaseLLMModel):
         self.api_key = api_key
         self.base_url = "https://openrouter.ai/api/v1"
         self.provider_order = provider_order
-        
+
         # Headers for OpenRouter API
         self.headers = {
             "Authorization": f"Bearer {api_key}",
@@ -77,28 +77,28 @@ class OpenRouterModel(BaseLLMModel):
             "X-Title": "LLM Economist",
             "Content-Type": "application/json"
         }
-        
-    def send_msg(self, system_prompt: str, user_prompt: str, 
-                 temperature: Optional[float] = None, 
+
+    def send_msg(self, system_prompt: str, user_prompt: str,
+                 temperature: Optional[float] = None,
                  json_format: bool = False) -> Tuple[str, bool]:
         """
         Send a message to the OpenRouter API and get a response.
-        
+
         Args:
             system_prompt: System prompt to set the context
             user_prompt: User prompt/question
             temperature: Temperature override for this call
             json_format: Whether to request JSON format response
-            
+
         Returns:
             Tuple of (response_text, is_json_valid)
         """
         if temperature is None:
             temperature = self.temperature
-            
+
         retry_count = 0
         max_retries = 3
-        
+
         while retry_count < max_retries:
             try:
                 # Prepare the request payload
@@ -131,7 +131,7 @@ class OpenRouterModel(BaseLLMModel):
                 # thinking-disabled mode at the provider level even when reasoning=none)
                 if json_format and not is_qwen3:
                     payload["response_format"] = {"type": "json_object"}
-                
+
                 # Make the API call
                 response = requests.post(
                     f"{self.base_url}/chat/completions",
@@ -139,13 +139,13 @@ class OpenRouterModel(BaseLLMModel):
                     json=payload,
                     timeout=60
                 )
-                
+
                 response.raise_for_status()
                 result = response.json()
-                
+
                 if 'choices' not in result or len(result['choices']) == 0:
                     raise Exception(f"No response choices returned: {result}")
-                
+
                 message = result['choices'][0]['message']['content']
 
                 if not self._validate_response(message):
@@ -164,7 +164,7 @@ class OpenRouterModel(BaseLLMModel):
                     return self._extract_json(message)
 
                 return message, False
-                
+
             except requests.exceptions.HTTPError as e:
                 resp = e.response
                 status = resp.status_code if resp is not None else None
@@ -196,23 +196,23 @@ class OpenRouterModel(BaseLLMModel):
                         flush=True,
                     )
                     raise
-                    
+
             except requests.exceptions.RequestException as e:
                 self.logger.error(f"Request error calling OpenRouter API: {e}")
                 retry_count += 1
                 if retry_count >= max_retries:
                     raise
                 sleep(1)
-                
+
             except Exception as e:
                 self.logger.error(f"Error calling OpenRouter API: {e}")
                 retry_count += 1
                 if retry_count >= max_retries:
                     raise
                 sleep(1)
-        
+
         raise Exception(f"Failed to get response after {max_retries} retries")
-    
+
     def get_models(self) -> list:
         """Get list of available models from OpenRouter."""
         try:
@@ -226,7 +226,7 @@ class OpenRouterModel(BaseLLMModel):
         except Exception as e:
             self.logger.error(f"Error getting models: {e}")
             return []
-    
+
     @classmethod
     def get_popular_models(cls):
         """Get list of popular models available on OpenRouter."""
@@ -246,11 +246,11 @@ class OpenRouterModel(BaseLLMModel):
             "cohere/command-r-plus",
             "perplexity/llama-3.1-sonar-large-128k-online"
         ]
-    
+
     def check_model_availability(self, model_name: str) -> bool:
         """Check if a specific model is available on OpenRouter."""
         try:
             models = self.get_models()
             return any(model['id'] == model_name for model in models)
         except:
-            return False 
+            return False

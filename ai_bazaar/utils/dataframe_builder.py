@@ -78,7 +78,7 @@ class DataFrameBuilder:
         seen = set()
         names = []
         for s in self.states:
-            for c in s.get("consumers", []): 
+            for c in s.get("consumers", []):
                 name = c.get("name")
                 if name and name not in seen:
                     seen.add(name)
@@ -87,7 +87,7 @@ class DataFrameBuilder:
                 if key.startswith("consumer_") and key not in seen:
                     seen.add(key)
                     names.append(key)
-        
+
         return sorted(names)
 
     def _all_good_names(self) -> List[str]:
@@ -698,15 +698,15 @@ class DataFrameBuilder:
 
     @staticmethod
     def value_by_agent(
-        state: Dict[str, Any], 
-        ledger_field: str = "money", 
-        agent_label: str = "Agent", 
+        state: Dict[str, Any],
+        ledger_field: str = "money",
+        agent_label: str = "Agent",
         value_label: str = "Value"
     ) -> pd.DataFrame:
         """
         From a single state dict, build a two-column DataFrame: <agent_label>, <value_label>
         using values from state["ledger"][ledger_field].
-        
+
         Args:
             state: Dict, a single simulation state.
             ledger_field: str, the field in state["ledger"] to extract (e.g. "money").

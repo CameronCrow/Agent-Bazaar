@@ -771,7 +771,7 @@ class BazaarWorld:
 
             # 5) Store the new listings on the world for downstream use
             self.lemon_market_listings = new_listings
-        
+
         # 3. Firm phases
         firm_prices = {}
         market_contexts = {}

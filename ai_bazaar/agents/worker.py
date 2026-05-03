@@ -33,10 +33,10 @@ def distribute_personas(num_agents: int, arg_llm: str, arg_port: int, arg_servic
     """
     csv_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'occupation_detailed_summary.csv')
     synthetic_data = generate_synthetic_data(csv_path, num_agents)
-    
+
     if arg_llm == 'None':
         return distribute_fixed_personas(num_agents)
-    
+
     # Create the appropriate LLM model based on the type
     if 'gpt' in arg_llm.lower():
         llm = OpenAIModel(model_name=arg_llm)
@@ -53,18 +53,18 @@ def distribute_personas(num_agents: int, arg_llm: str, arg_port: int, arg_servic
             llm = VLLMModel(model_name=arg_llm, base_url=f"http://localhost:{arg_port}")
     else:
         raise ValueError(f"Invalid LLM type: {arg_llm}")
-    
+
     personas = {}
-    
+
     for i, (occupation, sex, age) in enumerate(synthetic_data):
         # Create a unique key for this persona
         persona_key = f"{occupation.lower().replace(' ', '_').replace(',', '').replace('.', '')}_{i}"
-        
+
         # Create persona using LLM based on the sampled statistics
         persona_description = create_persona_with_llm(llm, occupation, sex, age)
-        
+
         personas[persona_key] = persona_description
-    
+
     print(f"Created {len(personas)} personas from synthetic data using LLM")
     print(personas)
     return personas
@@ -75,7 +75,7 @@ def create_persona_with_llm(llm, occupation: str, sex: str, age: int) -> str:
     Use LLM to create a persona description based on occupation, sex, and age statistics.
     """
     system_prompt = "You are an expert in creating realistic economic personas for simulations. Create detailed, realistic personas based on demographic and occupational data."
-    
+
     user_prompt = f"""Create a realistic persona description for an economic simulation based on these statistics:
 - Occupation: {occupation}
 - Sex: {sex}
@@ -93,19 +93,19 @@ Make the persona realistic and grounded in what someone of this age, gender, and
 
 Example format: "You are a [age]-year-old [gender] working as [occupation]. [Economic situation and attitudes]. [Life circumstances and decision-making style]."
 """
-    
+
     try:
         persona_description, _ = llm.send_msg(system_prompt=system_prompt, user_prompt=user_prompt)
-        
+
         # Clean up the response
         persona_description = persona_description.strip()
-        
+
         # Remove any markdown formatting or extra quotes
         if persona_description.startswith('"') and persona_description.endswith('"'):
             persona_description = persona_description[1:-1]
-        
+
         return persona_description
-        
+
     except Exception as e:
         print(f"Error generating persona with LLM: {e}")
         # Fallback to a basic description
@@ -144,7 +144,7 @@ def create_persona_from_stats(occupation: str, sex: str, age: int) -> str:
             'financial_attitudes': 'focuses on long-term wealth building',
             'work_situation': 'has high earning potential but competitive environment'
         },
-        
+
         # Service occupations
         'Food preparation and serving related occupations': {
             'income_level': 'low',
@@ -158,7 +158,7 @@ def create_persona_from_stats(occupation: str, sex: str, age: int) -> str:
             'financial_attitudes': 'values steady income and health benefits',
             'work_situation': 'provides essential services with modest pay'
         },
-        
+
         # Sales and office occupations
         'Sales and related occupations': {
             'income_level': 'moderate',
@@ -172,7 +172,7 @@ def create_persona_from_stats(occupation: str, sex: str, age: int) -> str:
             'financial_attitudes': 'prefers stable income and traditional benefits',
             'work_situation': 'has regular hours and predictable income'
         },
-        
+
         # Blue-collar occupations
         'Construction and extraction occupations': {
             'income_level': 'moderate',
@@ -193,7 +193,7 @@ def create_persona_from_stats(occupation: str, sex: str, age: int) -> str:
             'work_situation': 'has regular routes or schedules'
         }
     }
-    
+
     # Get traits for this occupation, with defaults if not found
     traits = occupation_traits.get(occupation, {
         'income_level': 'moderate',
@@ -201,7 +201,7 @@ def create_persona_from_stats(occupation: str, sex: str, age: int) -> str:
         'financial_attitudes': 'has typical financial concerns',
         'work_situation': 'works in their chosen field'
     })
-    
+
     # Age-based adjustments
     if age < 25:
         life_stage = "early career"
@@ -221,25 +221,25 @@ def create_persona_from_stats(occupation: str, sex: str, age: int) -> str:
     else:
         life_stage = "retirement or late career"
         financial_focus = "managing fixed income and healthcare expenses"
-    
+
     # Gender-based considerations (based on general economic trends)
     if sex.lower() == 'female':
         gender_considerations = "may face wage gaps and career interruptions"
     else:
         gender_considerations = "benefits from traditional career advantages"
-    
+
     # Create the persona description
     persona_description = f"You are a {age}-year-old {sex.lower()} working in {occupation.lower()}. " \
                           f"You are in your {life_stage} and your main financial focus is {financial_focus}. " \
                           f"You have {traits['income_level']} income and {traits['risk_tolerance']} risk tolerance. " \
                           f"You {traits['financial_attitudes']} and {traits['work_situation']}. " \
                           f"In the current economic environment, you {gender_considerations}."
-    
+
     return persona_description
 
 class Worker(LLMAgent):
-    
-    def __init__(self, llm: str, port: int, name: str, two_timescale: int=20, prompt_algo: str='io', 
+
+    def __init__(self, llm: str, port: int, name: str, two_timescale: int=20, prompt_algo: str='io',
                  history_len: int=10, timeout: int=10, skill: int=-1, max_timesteps: int=500, role: str='default',
                    utility_type: str='egotistical', scenario: str='rational', num_agents: int=-1,
                    args=None) -> None:
@@ -264,7 +264,7 @@ class Worker(LLMAgent):
         self.vote = int(self.name.split("_")[-1])
         self.platform = None # corresponds to not running
         self.swf = 0.
-        
+
         self.scenario = scenario
 
         # scenarios
@@ -374,10 +374,10 @@ class Worker(LLMAgent):
             self.message_history[timestep]['historical'] += f'utility: u = {utility_def} = {self.utility}\n'
             self.utility_history.append(self.utility)
             self.message_history[timestep]['metric'] = self.utility
-        else:    
+        else:
             role_reflect_msg = f'{GEN_ROLE_MESSAGES[self.role]}\nBased on your summary of this year:\n{self.message_history[timestep]["historical"]} are you satisfied with the overall tax policy (including tax_i and rebate)?\n'
             role_reflect_msg += 'Let\'s think step by step. Your thought should no more than 4 sentences. Use the JSON format: {\"thought\":\"<step-by-step-thinking>\", \"ANSWER\": \"X\"} and replace \"X\" with \"YES\" or \"NO\".\n'
-            
+
             system_prompt_backup = self.system_prompt
             self.system_prompt = ''
             self.r, self.thought = self.call_llm(role_reflect_msg, timestep, ['ANSWER', 'thought'], self.parse_role_w_thought)
@@ -435,7 +435,7 @@ class Worker(LLMAgent):
             if x < 0 or np.isnan(x) or np.isinf(x):
                 raise ValueError('out of bounds', output)
         return output
-    
+
     def parse_role_answer(self, items: list[str]) -> float:
         if not isinstance(items[0], str):
             raise ValueError('invalid answer', items)
@@ -446,7 +446,7 @@ class Worker(LLMAgent):
             return 0.5
         else:
             raise ValueError('invalid answer', answer)
-        
+
     def parse_role_w_thought(self, items: list[str]) -> Tuple[float, str]:
         # Get role
         if not isinstance(items[0], str):
@@ -459,20 +459,20 @@ class Worker(LLMAgent):
             role = 0.5
         else:
             raise ValueError('invalid answer', answer)
-        
+
         # Get thought
         thought = items[1]
         return role, thought
-        
+
 
     def parse_platform(self, items: list[str]) -> float:
         if not isinstance(items[0], list):
             raise ValueError('invalid platform', list)
         answer = items[0]
         self.platform = answer
-        self.logger.info(f"[WORKER] {self.name} platform={self.platform}") 
+        self.logger.info(f"[WORKER] {self.name} platform={self.platform}")
         return answer
-        
+
     def parse_vote(self, items: list[str]) -> float:
         if not isinstance(items[0], str):
             raise ValueError('invalid leader vote', items)
@@ -489,7 +489,7 @@ class Worker(LLMAgent):
         #     return None
         #print("delta before parse: ", tax_rates)
         output_delta = []
-        if len(tax_rates) != self.num_brackets:  
+        if len(tax_rates) != self.num_brackets:
             raise ValueError('too many tax values', tax_rates)
         for i, rate in enumerate(tax_rates):
             if isinstance(rate, str):
@@ -498,7 +498,7 @@ class Worker(LLMAgent):
             rate = np.clip(rate, -self.change, self.change)
             rate = np.round(rate / 10) * 10
             # rate = np.round(rate / 10) * 10
-            
+
             if rate + self.tax_rates[i] > 100:
                 rate = -rate
             elif rate + self.tax_rates[i] < 0:
@@ -517,7 +517,7 @@ class Worker(LLMAgent):
         self.add_message_history_timestep(timestep+1) # add for next timestep
         self.z = self.l * self.v
         return self.z
-    
+
     def act_pre_vote(self, timestep: int):
         worker_state = self.get_historical_message(timestep, include_user_prompt=False)
         bracket_prompt, format_prompt = get_bracket_prompt(self.bracket_setting)
@@ -529,10 +529,10 @@ class Worker(LLMAgent):
                         Use the historical data to influence your answer in order to maximize your utility u, while balancing exploration and exploitation by choosing varying rates of TAX.  \
                         If you decide to run, reply with all answers in '\
                       'JSON like: {\"DELTA\": '+f'{format_prompt}'+'} and replace \"X\" with the percentage that the tax rates will change. '\
-                      'If you decide not to run, you must output JSON like: {\"DELTA\": None}.\n' 
+                      'If you decide not to run, you must output JSON like: {\"DELTA\": None}.\n'
         msg = worker_state + user_prompt
         return self.prompt_io(msg, timestep, ['DELTA'], self.parse_platform)
-    
+
     def act_vote_platform(self, candidates, timestep: int):
         worker_state = self.get_historical_message(timestep, include_user_prompt=False)
         user_prompt = 'This year you may vote for a new tax planning leader who will decide the tax rates. ' \
@@ -550,7 +550,7 @@ class Worker(LLMAgent):
                       'Use the JSON format: {\"LEADER\": \"X\"} and replace \"X\" with your answer.\n'
         msg = worker_state + user_prompt
         return self.prompt_io(msg, timestep, ['LEADER'], self.parse_vote)
-    
+
     def act_plan(self, timestep: int, planner_state: str):
         worker_state = self.get_historical_message(timestep, include_user_prompt=False)
         bracket_prompt, format_prompt = get_bracket_prompt(self.bracket_setting)
@@ -561,13 +561,13 @@ class Worker(LLMAgent):
                         'Each tax rate can changed DELTA=[-20, -10, 0, 10, 20] percent where tax rates must be between 0 and 100 percent. \
                         Use the historical data to influence your answer in order to maximize your utility u, while balancing exploration and exploitation by choosing varying rates of TAX.  \
                         Reply with all answers in \
-                        JSON like: {\"DELTA\": '+f'{format_prompt}'+'} and replace \"X\" with the percentage that the tax rates will change.' 
+                        JSON like: {\"DELTA\": '+f'{format_prompt}'+'} and replace \"X\" with the percentage that the tax rates will change.'
         msg = planner_state + worker_state + user_prompt
         try:
             return self.prompt_io(msg, timestep, ['DELTA'], self.parse_tax)
         except ValueError:
             return ([0]*self.num_brackets,)
-    
+
     def act_utility_labor(self, timestep: int, tax_rates: list[float], planner_state: str):
         # for adversarial and altruistic actions
         self.add_message(timestep, Message.UPDATE, tax=tax_rates)
@@ -578,20 +578,20 @@ class Worker(LLMAgent):
         self.add_message_history_timestep(timestep+1) # add for next timestep
         self.z = self.l * self.v
         return self.z
-        
-    
+
+
     def update_leader(self, timestep: int, leader: int, candidates: list = None):
         self.leader = f"worker_{leader}"
         self.message_history[timestep]['leader'] = f"Leader: {self.leader}."
         if candidates is not None:
             self.message_history[timestep]['leader'] += f" Leader's Platform during election: {candidates[leader][1]}."
         return
-    
+
     def update_leader_action(self, timestep: int, tax_policy: list[float]):
         formatted_policy = [int(x) if x.is_integer() else float(x) for x in tax_policy]
         self.message_history[timestep]['leader'] += f" Leader's action: {formatted_policy}."
         return
-    
+
     def add_message(self, timestep: int, m_type: Message, tax: list[float]=None) -> None:
         if m_type == Message.SYSTEM:
             return
@@ -614,7 +614,7 @@ class Worker(LLMAgent):
                 self.message_history[timestep]['user_prompt'] += 'Use the historical data to influence your answer in order to maximize utility u, while balancing exploration and exploitation by choosing varying amounts of LABOR. '
             self.message_history[timestep]['user_prompt'] += f'Next year, you may perform LABOR: [0,10,20,30,40,50,60,70,80,90,100] hours. Please choose the{best_str} amount of LABOR to perform. '
             # self.message_history[timestep]['user_prompt'] += 'Try different values of LABOR before picking the one that corresponds to the highest utility u. '
-            # self.message_history[timestep]['user_prompt'] += 'Also compute the expected income z and utility u. ' 
+            # self.message_history[timestep]['user_prompt'] += 'Also compute the expected income z and utility u. '
             if self.prompt_algo == 'cot' or self.prompt_algo == 'sc':
                 self.message_history[timestep]['user_prompt'] += ' Use the JSON format: {\"thought\":\"<step-by-step-thinking>\", \"LABOR\": \"X\"} and replace \"X\" with your answer.\n'
                 # self.message_history[timestep]['user_prompt'] += ' Use the JSON format: {\"thought\":\"<step-by-step-thinking>\", \"LABOR\": \"X\",\"z\": \"X\", \"u\": \"X\"} and replace \"X\" with your answer.\n'
@@ -650,7 +650,7 @@ class Worker(LLMAgent):
                 self.logger.info(f"[WORKER] {self.name} t={timestep}:\nskill={self.v}\nlabor={self.l}\nz={self.z}\nz_tilde={self.z_tilde}\ntax={self.tax_paid}\nrebate={self.rebate}\nu={self.utility}\nrole={self.role}\nsatisfaction={self.r}")
             else:
                 self.logger.info(f"[WORKER] {self.name} t={timestep}:\nskill={self.v}\nlabor={self.l}\nz={self.z}\ntax={self.tax_paid}\nrebate={self.rebate}\nu={self.utility}\nrole={self.role}\nsatisfaction={self.r}")
-            
+
             # self.logger.info(f"llm_z={self.z_pred}\nllm_u={self.u_pred}\nllm_z_diff={np.abs(self.z_pred-self.z)}\nllm_u_diff={np.abs(self.u_pred-self.utility)}")
         return logger
 
@@ -684,13 +684,13 @@ class FixedWorker(LLMAgent):
         self.tax_paid = 0
         self.rebate = 0
         self.z_tilde = 0
-        
+
         self.act = self.act_labor
 
     @property
     def labor(self):
         return self.l
-    
+
     def act_labor(self, timestep: int, tax_rates: list[float], planner_state=None) -> float:
         self.z = self.l * self.v
         return self.z

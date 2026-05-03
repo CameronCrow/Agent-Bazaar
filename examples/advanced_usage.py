@@ -13,7 +13,7 @@ from ai_bazaar.main import run_simulation
 def test_rational_openai():
     """Test rational scenario with OpenAI GPT-4o-mini."""
     print("Running rational scenario with OpenAI GPT-4o-mini...")
-    
+
     class Args:
         scenario = "rational"
         num_agents = 3
@@ -43,15 +43,15 @@ def test_rational_openai():
         log_dir = "logs"
         elasticity = [0.4]
         seed = 42
-    
+
     args = Args()
-    
+
     # Make sure OpenAI API key is set
     if not os.getenv('OPENAI_API_KEY') and not os.getenv('ECON_OPENAI'):
         print("Please set OPENAI_API_KEY environment variable")
         print("Example: export OPENAI_API_KEY=your_api_key_here")
         return False
-    
+
     try:
         run_simulation(args)
         print("✓ Rational scenario simulation completed successfully")
@@ -64,7 +64,7 @@ def test_rational_openai():
 def test_bounded_rationality():
     """Test bounded rationality scenario."""
     print("Running bounded rationality scenario...")
-    
+
     class Args:
         scenario = "bounded"
         num_agents = 3
@@ -94,14 +94,14 @@ def test_bounded_rationality():
         log_dir = "logs"
         elasticity = [0.4]
         seed = 42
-    
+
     args = Args()
-    
+
     # Make sure OpenAI API key is set
     if not os.getenv('OPENAI_API_KEY') and not os.getenv('ECON_OPENAI'):
         print("Please set OPENAI_API_KEY environment variable")
         return False
-    
+
     try:
         run_simulation(args)
         print("✓ Bounded rationality simulation completed successfully")
@@ -114,7 +114,7 @@ def test_bounded_rationality():
 def test_democratic_scenario():
     """Test democratic voting scenario."""
     print("Running democratic voting scenario...")
-    
+
     class Args:
         scenario = "democratic"
         num_agents = 3
@@ -144,14 +144,14 @@ def test_democratic_scenario():
         log_dir = "logs"
         elasticity = [0.4]
         seed = 42
-    
+
     args = Args()
-    
+
     # Make sure OpenAI API key is set
     if not os.getenv('OPENAI_API_KEY') and not os.getenv('ECON_OPENAI'):
         print("Please set OPENAI_API_KEY environment variable")
         return False
-    
+
     try:
         run_simulation(args)
         print("✓ Democratic scenario simulation completed successfully")
@@ -164,7 +164,7 @@ def test_democratic_scenario():
 def test_fixed_workers():
     """Test fixed workers scenario."""
     print("Running fixed workers scenario...")
-    
+
     class Args:
         scenario = "rational"
         num_agents = 3
@@ -194,14 +194,14 @@ def test_fixed_workers():
         log_dir = "logs"
         elasticity = [0.4]
         seed = 42
-    
+
     args = Args()
-    
+
     # Make sure OpenAI API key is set
     if not os.getenv('OPENAI_API_KEY') and not os.getenv('ECON_OPENAI'):
         print("Please set OPENAI_API_KEY environment variable")
         return False
-    
+
     try:
         run_simulation(args)
         print("✓ Fixed workers simulation completed successfully")
@@ -214,7 +214,7 @@ def test_fixed_workers():
 def test_openrouter_rational():
     """Test rational scenario with OpenRouter."""
     print("Running rational scenario with OpenRouter...")
-    
+
     class Args:
         scenario = "rational"
         num_agents = 3
@@ -244,15 +244,15 @@ def test_openrouter_rational():
         log_dir = "logs"
         elasticity = [0.4]
         seed = 42
-    
+
     args = Args()
-    
+
     # Make sure OpenRouter API key is set
     if not os.getenv('OPENROUTER_API_KEY'):
         print("Please set OPENROUTER_API_KEY environment variable")
         print("Example: export OPENROUTER_API_KEY=your_api_key_here")
         return False
-    
+
     try:
         run_simulation(args)
         print("✓ OpenRouter rational simulation completed successfully")
@@ -265,7 +265,7 @@ def test_openrouter_rational():
 def test_vllm_rational():
     """Test rational scenario with local vLLM server."""
     print("Running rational scenario with local vLLM...")
-    
+
     class Args:
         scenario = "rational"
         num_agents = 3
@@ -295,12 +295,12 @@ def test_vllm_rational():
         log_dir = "logs"
         elasticity = [0.4]
         seed = 42
-    
+
     args = Args()
-    
+
     print("Make sure you have a vLLM server running on port 8000")
     print("Example: python -m vllm.entrypoints.openai.api_server --model meta-llama/Llama-3.1-8B-Instruct --port 8000")
-    
+
     try:
         run_simulation(args)
         print("✓ vLLM rational simulation completed successfully")
@@ -313,7 +313,7 @@ def test_vllm_rational():
 def test_ollama_rational():
     """Test rational scenario with Ollama."""
     print("Running rational scenario with Ollama...")
-    
+
     class Args:
         scenario = "rational"
         num_agents = 3
@@ -343,12 +343,12 @@ def test_ollama_rational():
         log_dir = "logs"
         elasticity = [0.4]
         seed = 42
-    
+
     args = Args()
-    
+
     print("Make sure you have Ollama running with llama3.1:8b model")
     print("Example: ollama run llama3.1:8b")
-    
+
     try:
         run_simulation(args)
         print("✓ Ollama rational simulation completed successfully")
@@ -361,7 +361,7 @@ def test_ollama_rational():
 def test_gemini_rational():
     """Test rational scenario with Google Gemini."""
     print("Running rational scenario with Google Gemini...")
-    
+
     class Args:
         scenario = "rational"
         num_agents = 3
@@ -391,15 +391,15 @@ def test_gemini_rational():
         log_dir = "logs"
         elasticity = [0.4]
         seed = 42
-    
+
     args = Args()
-    
+
     # Make sure Google AI API key is set
     if not os.getenv('GOOGLE_API_KEY'):
         print("Please set GOOGLE_API_KEY environment variable")
         print("Example: export GOOGLE_API_KEY=your_api_key_here")
         return False
-    
+
     try:
         run_simulation(args)
         print("✓ Gemini rational simulation completed successfully")
@@ -415,7 +415,7 @@ def run_all_scenario_tests():
     print("Running LLM Economist Advanced Usage Tests")
     print("All simulations run for 20 timesteps")
     print("="*60)
-    
+
     # Core scenario tests (require OpenAI API key)
     core_tests = [
         ("Rational Scenario", test_rational_openai),
@@ -423,7 +423,7 @@ def run_all_scenario_tests():
         ("Democratic Voting", test_democratic_scenario),
         ("Fixed Workers", test_fixed_workers),
     ]
-    
+
     # Additional service tests (require respective API keys)
     service_tests = [
         ("OpenRouter", test_openrouter_rational),
@@ -431,15 +431,15 @@ def run_all_scenario_tests():
         ("Ollama", test_ollama_rational),
         ("Gemini", test_gemini_rational),
     ]
-    
+
     passed = 0
     failed = 0
     skipped = 0
-    
+
     print("\n" + "="*40)
     print("CORE SCENARIO TESTS")
     print("="*40)
-    
+
     for test_name, test_func in core_tests:
         print(f"\n{test_name}:")
         try:
@@ -450,11 +450,11 @@ def run_all_scenario_tests():
         except Exception as e:
             print(f"✗ Test failed with exception: {e}")
             failed += 1
-    
+
     print("\n" + "="*40)
     print("ADDITIONAL SERVICE TESTS")
     print("="*40)
-    
+
     for test_name, test_func in service_tests:
         print(f"\n{test_name}:")
         try:
@@ -465,18 +465,18 @@ def run_all_scenario_tests():
         except Exception as e:
             print(f"✗ Test failed with exception: {e}")
             failed += 1
-    
+
     print("\n" + "="*60)
     print(f"Test Results: {passed} passed, {failed} failed, {skipped} skipped")
     print("="*60)
-    
+
     if failed == 0:
         print("🎉 All available tests passed!")
         if skipped > 0:
             print(f"Note: {skipped} tests were skipped due to missing API keys")
     else:
         print("❌ Some tests failed. Please check the errors above.")
-    
+
     return failed == 0
 
 
@@ -484,7 +484,7 @@ def main():
     """Main entry point for advanced usage examples."""
     if len(sys.argv) > 1:
         command = sys.argv[1].lower()
-        
+
         if command == "--help" or command == "-h":
             print(__doc__)
             print("\nUsage:")
@@ -500,7 +500,7 @@ def main():
             print("  python examples/advanced_usage.py --help            # Show this help")
             print("\nAll simulations run for 20 timesteps for testing purposes.")
             return
-        
+
         # Run individual tests
         test_map = {
             "rational": test_rational_openai,
@@ -512,7 +512,7 @@ def main():
             # "ollama": test_ollama_rational,
             # "gemini": test_gemini_rational,
         }
-        
+
         if command in test_map:
             success = test_map[command]()
             sys.exit(0 if success else 1)
@@ -520,11 +520,11 @@ def main():
             print(f"Unknown command: {command}")
             print("Use --help to see available commands")
             sys.exit(1)
-    
+
     # Run all tests
     success = run_all_scenario_tests()
     sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":
-    main() 
+    main()

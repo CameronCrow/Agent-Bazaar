@@ -55,4 +55,4 @@ setup(
         "ai_bazaar": ["data/*.csv"],
     },
     zip_safe=False,
-) 
+)

@@ -75,7 +75,7 @@ class CESConsumerAgent(LLMAgent):
         self.c = 0.0006  # labor disutility coefficient
         self.delta = 3.1  # labor disutility exponent
         self.z = self.l * self.v  # pre-tax income from labor
-        
+
         self.epsilon = epsilon
         self.beta = beta
         self.use_crra_savings = use_crra_savings
@@ -131,11 +131,11 @@ class CESConsumerAgent(LLMAgent):
         labor_disutility = self.compute_labor_disutility()
 
         return goods_utility + cash_utility - labor_disutility
-    
+
     def compute_labor_disutility(self) -> float:
         scale = getattr(self, "_labor_disutility_scale", 1.0)
         return self.c * np.power(self.l, self.delta) * scale
-    
+
     def compute_goods_utility(self) -> float:
         goods_total = 0.0
         inventory = self.inventory
@@ -144,7 +144,7 @@ class CESConsumerAgent(LLMAgent):
             alpha = self.ces_params[good]
             goods_total += alpha * (quantity ** ((self.sigma - 1) / self.sigma))
         return goods_total ** (self.sigma / (self.sigma - 1))
-    
+
     #! TODO: Implement CRRA savings
     def compute_cash_utility(self) -> float:
         if self.use_crra_savings:
@@ -245,7 +245,7 @@ class CESConsumerAgent(LLMAgent):
             else:
                 demand[good] = (self.income / P) * alpha * (price / P) ** (-self.sigma)
         return demand
-    
+
     def compute_willingness_to_pay(self, timestep: int) -> Dict[str, float]:
         """Compute willingness to pay for each good. Cached per timestep; only last 3 timesteps kept."""
         if timestep in self.willingness_to_pay:
@@ -277,8 +277,8 @@ class CESConsumerAgent(LLMAgent):
         When there is no sale: r_g,t+1 = (1-B)*r_g,t + B*WTP_g,t0 (move eWTP toward initial WTP).
         B defaults to 0.3.
         """
-        
-        if sale is not None:  
+
+        if sale is not None:
             good = sale["good"]
             price = float(sale.get("price", 0.0))
             r_old = self._r.get(good)
@@ -489,7 +489,7 @@ class CESConsumerAgent(LLMAgent):
                             lowest_in_subset.firm_id, good, demand[good], order_price
                         )
                     )
-                    
+
         elif scenario == "THE_CRASH":
             # Of the dlc randomly visible quotes, choose by score: 1/price or rep/price (if crash_rep_scoring)
             reps = firm_reputations or {}
@@ -542,7 +542,7 @@ class CESConsumerAgent(LLMAgent):
                             best_quote.firm_id, good, demand[good], order_price
                         )
                     )
-        
+
         elif scenario == "LEMON_MARKET":
             for good in self.goods:
                 good_str = str(good).strip()
@@ -561,8 +561,8 @@ class CESConsumerAgent(LLMAgent):
                         self.create_order(
                             lowest_in_subset.firm_id, good, demand[good], order_price
                         )
-                    ) 
-        
+                    )
+
         else:
             raise ValueError(f"Invalid scenario: {scenario}")
 
