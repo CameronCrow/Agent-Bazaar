@@ -35,26 +35,6 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if not (PROJECT_ROOT / "ai_bazaar").exists():
     PROJECT_ROOT = Path.cwd()
 
-_DEBUG_AGENT_LOG = PROJECT_ROOT / "debug-90a41f.log"
-
-
-def _agent_debug_log(hypothesis_id: str, location: str, message: str, data: dict) -> None:
-    # #region agent log
-    try:
-        rec = {
-            "sessionId": "90a41f",
-            "hypothesisId": hypothesis_id,
-            "location": location,
-            "message": message,
-            "timestamp": int(time.time() * 1000),
-            "data": data,
-        }
-        with open(_DEBUG_AGENT_LOG, "a", encoding="utf-8") as df:
-            df.write(json.dumps(rec, default=str) + "\n")
-    except Exception:
-        pass
-    # #endregion
-
 TIMESTAMP = datetime.now().strftime("%Y-%m-%d_%H-%M")
 
 MODELS_JSON = PROJECT_ROOT / "documentation" / "open_weights_models.json"
@@ -161,26 +141,10 @@ def run_one(label: str, argv: list[str], model_logs_dir: Path) -> tuple[int, flo
         elapsed = time.monotonic() - t0
         if proc.returncode != 0:
             log(f"WARNING: {label} exited with code {proc.returncode}")
-            # #region agent log
-            _agent_debug_log(
-                "H3",
-                "exp1_eas_sweep.py:run_one:nonzero",
-                "child ai_bazaar.main exited non-zero",
-                {"label": label, "returncode": proc.returncode, "log_path": str(log_path)},
-            )
-            # #endregion
         return proc.returncode, elapsed
     except Exception as e:
         elapsed = time.monotonic() - t0
         log(f"ERROR in {label}: {e}")
-        # #region agent log
-        _agent_debug_log(
-            "H3",
-            "exp1_eas_sweep.py:run_one:exception",
-            "Popen/streaming failed",
-            {"label": label, "exc_type": type(e).__name__, "exc_msg": str(e)},
-        )
-        # #endregion
         return -1, elapsed
 
 
