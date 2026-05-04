@@ -3,7 +3,6 @@
 [Python 3.10+](https://www.python.org/downloads/)
 [License: MIT](https://opensource.org/licenses/MIT)
 [Tests](https://pytest.org/)
-[arXiv](https://arxiv.org/abs/2507.15815)
 
 <p align="center">
   <img src="fig/teaser.png" alt="Agent Bazaar teaser" width="90%">
@@ -25,7 +24,7 @@ We study two canonical failure modes. **THE_CRASH**: in B2C markets, LLM firms e
 
 For each failure mode, AI-Bazaar tests intervention mechanisms: **Stabilizing Firms** enforce a price floor against the undercutting spiral; **Skeptical Guardians** detect and reject deceptive listings. We evaluate frontier and open-weight models (3B–405B) across both scenarios and introduce the **Economic Alignment Score (EAS)**, a unified scalar aggregating stability, integrity, welfare, and profitability into a single cross-model metric.
 
-Built on [LLM Economist](https://github.com/sethkarten/LLM-Economist/), extending it with agent-agent goods trading, firm/buyer/seller agents, and a Streamlit visualization dashboard.
+The simulator builds on infrastructure from [LLM Economist](https://github.com/sethkarten/LLM-Economist/) (consumer/firm scaffolding, the LLM-call layer) and extends it with agent-agent goods trading, firm/buyer/seller/Sybil agents, the EAS metric, and a Streamlit visualization dashboard.
 
 ---
 
@@ -598,14 +597,26 @@ The open-weight model list used by the EAS sweep (`scripts/exp1_eas_sweep.py`, `
 
 ## Citation
 
-This framework builds on the LLM Economist:
+If you use this framework, please cite the Agent Bazaar paper:
+
+```bibtex
+@misc{karten2026agentbazaar,
+  title  = {The Agent Bazaar: Benchmarking Economic Alignment in High-Frequency Multi-Agent Ecosystems},
+  author = {Karten, Seth and Crow, Cameron and Jin, Chi},
+  year   = {2026},
+  institution = {Princeton University},
+  note   = {Under review}
+}
+```
+
+The simulator's consumer/firm scaffolding and LLM-call layer build on the LLM Economist:
 
 ```bibtex
 @article{karten2025llm,
-  title={LLM Economist: Large Population Models and Mechanism Design in Multi-Agent Generative Simulacra},
-  author={Karten, Seth and Li, Wenzhe and Ding, Zihan and Kleiner, Samuel and Bai, Yu and Jin, Chi},
-  journal={arXiv preprint arXiv:2507.15815},
-  year={2025}
+  title  = {LLM Economist: Large Population Models and Mechanism Design in Multi-Agent Generative Simulacra},
+  author = {Karten, Seth and Li, Wenzhe and Ding, Zihan and Kleiner, Samuel and Bai, Yu and Jin, Chi},
+  journal = {arXiv preprint arXiv:2507.15815},
+  year   = {2025}
 }
 ```
 
