@@ -18,6 +18,14 @@ slurm_outputs
 # Paper (private)
 paper/
 
+# Sibling artifacts and snapshots that shouldn't ship
+AI-Bazaar/
+AI-Bazaar-lemon/
+ai-bazaar-latex/
+Agent-Bazaar-figures.pptx
+COLM.zip
+RELEASE_EXPERIMENTS.md
+
 # Dev scratch
 debug*.py
 debug*.log
