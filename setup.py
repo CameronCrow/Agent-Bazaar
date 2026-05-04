@@ -1,6 +1,4 @@
-"""
-Setup script for LLM Economist package.
-"""
+"""Setup script for the Agent Bazaar package."""
 
 from setuptools import setup, find_packages
 
@@ -11,14 +9,14 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
     requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
 
 setup(
-    name="ai-bazaar",
+    name="agent-bazaar",
     version="1.0.0",
-    author="Seth Karten, Wenzhe Li, Zihan Ding, Samuel Kleiner, Yu Bai, Chi Jin",
+    author="Seth Karten, Cameron Crow, Chi Jin",
     author_email="sethkarten@princeton.edu",
-    description="A framework for economic simulations using Large Language Models",
+    description="Agent Bazaar: a multi-agent LLM marketplace simulator for benchmarking economic alignment",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/sethkarten/LLMEconomist",
+    url="https://github.com/sethkarten/AI-Bazaar",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -47,7 +45,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "ai-bazaar=agent_bazaar.main:main",
+            "agent-bazaar=agent_bazaar.main:main",
         ],
     },
     include_package_data=True,

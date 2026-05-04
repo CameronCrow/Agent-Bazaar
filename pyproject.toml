@@ -1,5 +1,5 @@
 [project]
-name = "ai-bazaar"
+name = "agent-bazaar"
 version = "1.0.0"
 description = "A framework for economic simulations using Large Language Models"
 readme = "README.md"
