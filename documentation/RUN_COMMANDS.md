@@ -59,7 +59,7 @@ python scripts/exp1.py --skip-existing --workers 3     # resume partial run
 
 ### `scripts/exp1_eas_sweep.py` — EAS × Model Size sweep
 
-Runs the full Exp1 matrix for every dense open-weight model (3B–405B) via OpenRouter. See `OPEN_WEIGHTS_MODELS.md` for the full model list.
+Runs the full Exp1 matrix for every dense open-weight model (3B–405B) via OpenRouter. The model list is hard-coded in `scripts/exp1_eas_sweep.py`; use `--models` to filter by substring.
 
 **Total runs:** ~21 models × 15 cells each. Logs per model go to `logs/exp1_{model_slug}/`.
 

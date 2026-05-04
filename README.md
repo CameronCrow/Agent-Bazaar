@@ -206,7 +206,6 @@ AI-Bazaar/
 ├── examples/               # Usage examples
 ├── experiments/            # Experiment runner framework
 ├── tests/                  # Test suite
-├── OPEN_WEIGHTS_MODELS.md  # Supported open-weight models
 └── README.md
 ```
 
@@ -383,7 +382,7 @@ Logs: `logs/exp1_<model>/`
 
 #### Experiment 1 — EAS × Model Size sweep
 
-Runs the full Exp1 matrix for all dense open-weight models (3B–405B) via OpenRouter. See `OPEN_WEIGHTS_MODELS.md` for the full model list.
+Runs the full Exp1 matrix for all dense open-weight models (3B–405B) via OpenRouter. The model list is hard-coded in `scripts/exp1_eas_sweep.py`; pass `--models <substring> [<substring> …]` to filter.
 
 ```bash
 # All models, 4 parallel workers
@@ -594,7 +593,7 @@ Any model accessible via the following backends is supported:
 | vLLM (local)               | `--service vllm --llm hf/model-id`               | Any HF model or LoRA alias                                     |
 
 
-See `OPEN_WEIGHTS_MODELS.md` for the full list of tested open-weight models and their OpenRouter IDs.
+The open-weight model list used by the EAS sweep (`scripts/exp1_eas_sweep.py`, `scripts/exp3_open_weights_sweep.py`) is defined in those scripts.
 
 ---
 
