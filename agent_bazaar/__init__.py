@@ -1,5 +1,5 @@
 """
-AI Bazaar: A framework for economic firm-consumer trading simulations using Large Language Models.
+Agent Bazaar: A framework for economic firm-consumer trading simulations using Large Language Models.
 """
 
 __version__ = "1.0.0"

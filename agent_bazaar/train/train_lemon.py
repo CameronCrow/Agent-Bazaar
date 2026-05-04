@@ -375,7 +375,7 @@ def main():
         args.num_consumers = 12
 
     os.environ["WANDB_MODE"] = args.wandb_mode
-    wandb.init(project="ai-bazaar-lemon", name=args.run_name, config=vars(args), mode=args.wandb_mode)
+    wandb.init(project="agent-bazaar-lemon", name=args.run_name, config=vars(args), mode=args.wandb_mode)
 
     trainer = LemonTrainer(args.llm, args)
 

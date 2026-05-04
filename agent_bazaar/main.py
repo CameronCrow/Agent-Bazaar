@@ -66,7 +66,7 @@ def run_marketplace_simulation(args, llm_instance=None):
     # Optional: run via BazaarWorld (single source of truth; state files in log_dir)
     if args.wandb:
         wandb.init(
-            project="ai-bazaar-marketplace",
+            project="agent-bazaar-marketplace",
             entity="princeton-ai",
             name=args.name if args.name else "marketplace_simulation",
             config=vars(args),

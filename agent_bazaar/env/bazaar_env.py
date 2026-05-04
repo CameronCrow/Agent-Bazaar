@@ -240,7 +240,7 @@ class BazaarWorld:
                 self.firms.append(firm)
 
         self.consumers = []
-        from ai_bazaar.utils import PERSONAS
+        from agent_bazaar.utils import PERSONAS
 
         personas = [random.sample(PERSONAS, 1)[0] for _ in range(args.num_consumers)]
 
@@ -435,7 +435,7 @@ class BazaarWorld:
                 if " " in s or '"' in s or "\\" in s:
                     s = '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
                 parts.append(f"{opt} {s}")
-        return "python -m ai_bazaar.main " + " ".join(parts)
+        return "python -m agent_bazaar.main " + " ".join(parts)
 
     def _write_experiment_args(self):
         """Write experiment arguments to a JSON file in the run directory for the viz General tab."""

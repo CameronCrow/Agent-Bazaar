@@ -1,4 +1,4 @@
-"""REINFORCE++ trainer for stabilizing firm in AI-Bazaar marketplace.
+"""REINFORCE++ trainer for stabilizing firm in Agent Bazaar marketplace.
 
 Trains a single stabilizing firm (LoRA on Qwen3.5-9B bf16) using policy
 gradient with composite reward (profit + market survival + price floor).
@@ -934,7 +934,7 @@ def main():
         args.prompt_algo = "io"
 
     os.environ["WANDB_MODE"] = args.wandb_mode
-    wandb.init(project="ai-bazaar", name=args.run_name, config=vars(args), mode=args.wandb_mode)
+    wandb.init(project="agent-bazaar", name=args.run_name, config=vars(args), mode=args.wandb_mode)
 
     trainer = REINFORCETrainer(args.llm, args)
 
