@@ -202,7 +202,6 @@ AI-Bazaar/
 │   └── extract_sybil_prompts.py
 ├── corpus/                 # Pre-compiled listing corpus for LEMON_MARKET
 ├── documentation/          # Run commands and model reference
-├── eval_logs/              # Reference evaluation data
 ├── examples/               # Usage examples
 ├── experiments/            # Experiment runner framework
 ├── tests/                  # Test suite
