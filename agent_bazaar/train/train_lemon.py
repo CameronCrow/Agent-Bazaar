@@ -10,7 +10,7 @@ The guardian buyer learns to:
 3. Maintain overall market health
 
 Usage:
-    python -m ai_bazaar.train.train_lemon \
+    python -m agent_bazaar.train.train_lemon \
         --llm unsloth/Qwen3.5-9B \
         --num-firms 12 --sybil-cluster-size 6 \
         --num-consumers 12 \
@@ -34,9 +34,9 @@ import torch
 import traceback
 from typing import List, Dict, Any
 
-from ai_bazaar.train.train_reinforce import REINFORCETrainer, WelfordRunningStats
-from ai_bazaar.env.bazaar_env import BazaarWorld
-from ai_bazaar.main import create_argument_parser
+from agent_bazaar.train.train_reinforce import REINFORCETrainer, WelfordRunningStats
+from agent_bazaar.env.bazaar_env import BazaarWorld
+from agent_bazaar.main import create_argument_parser
 
 
 class LemonTrainer(REINFORCETrainer):
@@ -97,7 +97,7 @@ class LemonTrainer(REINFORCETrainer):
             detection_rate = sybil_passed / max(sybil_seen, 1)
 
             # 2. Consumer surplus (cumulative utility), normalized by V_MAX
-            from ai_bazaar.utils.common import V_MAX
+            from agent_bazaar.utils.common import V_MAX
             consumer_surplus = getattr(guardian, "utility", 0.0) if guardian else 0.0
             # Normalize: surplus per step, scaled to [~-1, ~1] range
             surplus_per_step = consumer_surplus / (max(steps, 1) * V_MAX)
@@ -239,7 +239,7 @@ class LemonTrainer(REINFORCETrainer):
 def buyer_sft_examples(tokenizer, num_examples=200, args=None):
     """Generate synthetic buyer (prompt, JSON) pairs for SFT warmup."""
     import random as rng
-    from ai_bazaar.utils.common import V_MAX
+    from agent_bazaar.utils.common import V_MAX
 
     system_prompt = (
         "You are consumer_0, a buyer in a used-car peer-to-peer market. "

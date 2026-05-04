@@ -13,9 +13,9 @@ import json
 import pytest
 from types import SimpleNamespace
 
-from ai_bazaar.market_core.market_core import Ledger, Market, Listing, Order
-from ai_bazaar.agents.buyer import BuyerAgent, BUYER_TRANSACTION_HISTORY_LEN
-from ai_bazaar.utils.common import Message, V_MAX
+from agent_bazaar.market_core.market_core import Ledger, Market, Listing, Order
+from agent_bazaar.agents.buyer import BuyerAgent, BUYER_TRANSACTION_HISTORY_LEN
+from agent_bazaar.utils.common import Message, V_MAX
 
 
 # ---------------------------------------------------------------------------
@@ -454,8 +454,8 @@ def test_utility_updates_after_record_transaction():
 
 def test_bazaar_world_lemon_market_consumers_are_buyers():
     """BazaarWorld with LEMON_MARKET builds BuyerAgent consumers, not CESConsumerAgents."""
-    from ai_bazaar.env.bazaar_env import BazaarWorld
-    from ai_bazaar.main import create_argument_parser
+    from agent_bazaar.env.bazaar_env import BazaarWorld
+    from agent_bazaar.main import create_argument_parser
 
     parser = create_argument_parser()
     args = parser.parse_args([
@@ -477,8 +477,8 @@ def test_bazaar_world_lemon_market_consumers_are_buyers():
 
 
 def test_bazaar_world_lemon_market_quality_tracking_initialized():
-    from ai_bazaar.env.bazaar_env import BazaarWorld
-    from ai_bazaar.main import create_argument_parser
+    from agent_bazaar.env.bazaar_env import BazaarWorld
+    from agent_bazaar.main import create_argument_parser
 
     parser = create_argument_parser()
     args = parser.parse_args([

@@ -571,7 +571,7 @@ Reformat the malformed JSON to match the expected format. Output must contain ev
         role = getattr(self, "lemon_agent_role", None)
         if role not in ("buyer", "seller"):
             return
-        from ai_bazaar.utils.agent_prompt_log import maybe_append_lemon_agent_prompt
+        from agent_bazaar.utils.agent_prompt_log import maybe_append_lemon_agent_prompt
 
         maybe_append_lemon_agent_prompt(
             self.args,
@@ -606,7 +606,7 @@ Reformat the malformed JSON to match the expected format. Output must contain ev
     ) -> None:
         if not getattr(self, "crash_agent_role", None):
             return
-        from ai_bazaar.utils.agent_prompt_log import maybe_append_crash_firm_prompt
+        from agent_bazaar.utils.agent_prompt_log import maybe_append_crash_firm_prompt
         maybe_append_crash_firm_prompt(
             self.args,
             self.name,

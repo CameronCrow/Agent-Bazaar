@@ -1,10 +1,10 @@
 # FIRM
-from ai_bazaar.market_core.market_core import Ledger, Market, Quote
+from agent_bazaar.market_core.market_core import Ledger, Market, Quote
 from typing import List, Dict, Any, Optional, Tuple
 from .llm_agent import LLMAgent
 import logging
 import numpy as np
-from ai_bazaar.utils.common import Message, advertised_quality_for_sybil, FIRM_PERSONA_DESCRIPTIONS
+from agent_bazaar.utils.common import Message, advertised_quality_for_sybil, FIRM_PERSONA_DESCRIPTIONS
 from collections import defaultdict
 
 DEFAULT_SUPPLY_UNIT_COSTS = {

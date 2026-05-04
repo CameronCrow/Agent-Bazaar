@@ -5,11 +5,11 @@ Tests for LLM model implementations.
 import pytest
 import os
 from unittest.mock import Mock, patch
-from ai_bazaar.models.base import BaseLLMModel
-from ai_bazaar.models.openai_model import OpenAIModel
-from ai_bazaar.models.vllm_model import VLLMModel, OllamaModel
-from ai_bazaar.models.openrouter_model import OpenRouterModel
-from ai_bazaar.models.gemini_model import GeminiModel
+from agent_bazaar.models.base import BaseLLMModel
+from agent_bazaar.models.openai_model import OpenAIModel
+from agent_bazaar.models.vllm_model import VLLMModel, OllamaModel
+from agent_bazaar.models.openrouter_model import OpenRouterModel
+from agent_bazaar.models.gemini_model import GeminiModel
 
 
 class TestBaseLLMModel:
@@ -60,7 +60,7 @@ class TestOpenAIModel:
             with pytest.raises(ValueError, match="OpenAI API key not found"):
                 OpenAIModel()
 
-    @patch('ai_bazaar.models.openai_model.OpenAI')
+    @patch('agent_bazaar.models.openai_model.OpenAI')
     def test_send_msg_success(self, mock_openai):
         """Test successful message sending."""
         # Mock the OpenAI client response
@@ -90,7 +90,7 @@ class TestOpenAIModel:
 class TestVLLMModel:
     """Test vLLM model implementation."""
 
-    @patch('ai_bazaar.models.vllm_model.OpenAI')
+    @patch('agent_bazaar.models.vllm_model.OpenAI')
     def test_init(self, mock_openai):
         """Test vLLM model initialization."""
         model = VLLMModel()
@@ -99,14 +99,14 @@ class TestVLLMModel:
 
     def test_model_mapping(self):
         """Test model name mapping."""
-        with patch('ai_bazaar.models.vllm_model.OpenAI'):
+        with patch('agent_bazaar.models.vllm_model.OpenAI'):
             model = VLLMModel(model_name="llama3:8b")
             assert model.model_name == "meta-llama/Llama-3.1-8B-Instruct"
 
-    @patch('ai_bazaar.models.vllm_model.requests.get')
+    @patch('agent_bazaar.models.vllm_model.requests.get')
     def test_health_check(self, mock_get):
         """Test health check functionality."""
-        with patch('ai_bazaar.models.vllm_model.OpenAI'):
+        with patch('agent_bazaar.models.vllm_model.OpenAI'):
             model = VLLMModel()
 
             # Test healthy server
@@ -149,7 +149,7 @@ class TestOpenRouterModel:
         assert isinstance(models, list)
         assert "meta-llama/llama-3.1-8b-instruct" in models
 
-    @patch('ai_bazaar.models.openrouter_model.requests.post')
+    @patch('agent_bazaar.models.openrouter_model.requests.post')
     def test_send_msg_success(self, mock_post):
         """Test successful message sending."""
         # Mock successful response

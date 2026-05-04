@@ -15,7 +15,7 @@ import streamlit as st
 from chart_builder import AltairChartBuilder
 _root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, _root)
-from ai_bazaar.utils.dataframe_builder import DataFrameBuilder
+from agent_bazaar.utils.dataframe_builder import DataFrameBuilder
 
 
 def _filter_seller_prompt_records(records, seller_name: str):
@@ -228,7 +228,7 @@ if firm_attributes_path and os.path.isfile(firm_attributes_path):
     with open(firm_attributes_path, "r") as f:
         firm_attributes_list = json.load(f)
 
-# Token usage summary for this run (optional; written by ai_bazaar.main)
+# Token usage summary for this run (optional; written by agent_bazaar.main)
 token_usage_files = (
     sorted(glob.glob(os.path.join(run_dir, "*_token_usage.json")))
     if run_dir

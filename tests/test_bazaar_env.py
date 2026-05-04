@@ -15,8 +15,8 @@ if __name__ == "__main__" and __package__ is None:
     if root not in sys.path:
         sys.path.insert(0, root)
 
-from ai_bazaar.main import create_argument_parser
-from ai_bazaar.env.bazaar_env import BazaarWorld
+from agent_bazaar.main import create_argument_parser
+from agent_bazaar.env.bazaar_env import BazaarWorld
 
 
 def get_bazaar_env_test_args():

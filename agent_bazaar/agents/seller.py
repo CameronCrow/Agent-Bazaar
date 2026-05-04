@@ -17,10 +17,10 @@ from collections import defaultdict, deque
 from typing import Any, Dict, List, Optional
 import logging
 
-from ai_bazaar.market_core.market_core import Ledger, Market
-from ai_bazaar.agents.firm import BaseFirmAgent
-from ai_bazaar.agents.llm_agent import LLMAgent
-from ai_bazaar.utils.common import Message, V_MAX, SELLER_PERSONAS, SELLER_PERSONA_DESCRIPTIONS
+from agent_bazaar.market_core.market_core import Ledger, Market
+from agent_bazaar.agents.firm import BaseFirmAgent
+from agent_bazaar.agents.llm_agent import LLMAgent
+from agent_bazaar.utils.common import Message, V_MAX, SELLER_PERSONAS, SELLER_PERSONA_DESCRIPTIONS
 
 
 class SellerAgent(BaseFirmAgent):

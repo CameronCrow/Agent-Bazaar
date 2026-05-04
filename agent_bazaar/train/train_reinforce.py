@@ -5,7 +5,7 @@ gradient with composite reward (profit + market survival + price floor).
 Other firms use the base model with their assigned personas.
 
 Usage:
-    python -m ai_bazaar.train.train_reinforce \
+    python -m agent_bazaar.train.train_reinforce \
         --llm unsloth/Qwen3.5-9B \
         --num-stabilizing-firms 1 \
         --num-firms 4 --firm-personas "competitive:2,reactive:1" \
@@ -34,10 +34,10 @@ from typing import List, Dict, Any, Optional
 
 from transformers import AutoTokenizer
 
-from ai_bazaar.models.unsloth_model import UnslothModel
-from ai_bazaar.env.bazaar_env import BazaarWorld
-from ai_bazaar.agents.firm import FirmAgent
-from ai_bazaar.main import create_argument_parser
+from agent_bazaar.models.unsloth_model import UnslothModel
+from agent_bazaar.env.bazaar_env import BazaarWorld
+from agent_bazaar.agents.firm import FirmAgent
+from agent_bazaar.main import create_argument_parser
 
 
 # ---------------------------------------------------------------------------
@@ -253,7 +253,7 @@ class REINFORCETrainer:
         goods_list = ["food", "clothing", "electronics", "furniture"][:getattr(self.args, "num_goods", 1)]
 
         # ── Build system prompt identical to FirmAgent._create_system_prompt(stabilizing=True) ──
-        from ai_bazaar.utils.common import FIRM_PERSONA_DESCRIPTIONS
+        from agent_bazaar.utils.common import FIRM_PERSONA_DESCRIPTIONS
         goods_str = ", ".join(goods_list)
         n_consumers = getattr(self.args, "num_consumers", 10)
         system_prompt = f"""You are a firm manager named stabilizing_firm that produces and sells goods in a market economy.

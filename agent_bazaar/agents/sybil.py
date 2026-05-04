@@ -18,10 +18,10 @@ import logging
 import random
 from typing import Any, Dict, List, Optional, Tuple
 
-from ai_bazaar.agents.llm_agent import LLMAgent
-from ai_bazaar.agents.seller import SellerAgent
-from ai_bazaar.market_core.market_core import Ledger, Market
-from ai_bazaar.utils.common import (
+from agent_bazaar.agents.llm_agent import LLMAgent
+from agent_bazaar.agents.seller import SellerAgent
+from agent_bazaar.market_core.market_core import Ledger, Market
+from agent_bazaar.utils.common import (
     QUALITY_DICT,
     QUALITY_TIERS_ORDERED,
     SYBIL_PERSONA_SYSTEM_PROMPTS,
@@ -29,7 +29,7 @@ from ai_bazaar.utils.common import (
     Message,
     advertised_quality_for_sybil,
 )
-from ai_bazaar.utils.agent_prompt_log import maybe_append_lemon_agent_prompt
+from agent_bazaar.utils.agent_prompt_log import maybe_append_lemon_agent_prompt
 
 
 # ---------------------------------------------------------------------------

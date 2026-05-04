@@ -47,12 +47,12 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "ai-bazaar=ai_bazaar.main:main",
+            "ai-bazaar=agent_bazaar.main:main",
         ],
     },
     include_package_data=True,
     package_data={
-        "ai_bazaar": ["data/*.csv"],
+        "agent_bazaar": ["data/*.csv"],
     },
     zip_safe=False,
 )

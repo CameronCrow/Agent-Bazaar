@@ -16,16 +16,16 @@ if __name__ == "__main__" and __package__ is None:
 
 import pytest
 
-from ai_bazaar.market_core.market_core import (
+from agent_bazaar.market_core.market_core import (
     Ledger,
     Market,
     Order,
     Quote,
     TransactionRecord,
 )
-from ai_bazaar.agents.firm import FixedFirmAgent
-from ai_bazaar.agents.consumer import FixedConsumerAgent
-from ai_bazaar.utils.common import GOODS_CONSUMPTION_RATE
+from agent_bazaar.agents.firm import FixedFirmAgent
+from agent_bazaar.agents.consumer import FixedConsumerAgent
+from agent_bazaar.utils.common import GOODS_CONSUMPTION_RATE
 
 
 GOODS_4 = ["food", "clothing", "electronics", "furniture"]

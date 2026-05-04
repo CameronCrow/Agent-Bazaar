@@ -10,7 +10,7 @@ Ollama instead, change ``--llm`` to e.g. ``llama3.1:8b`` and add
 
 Equivalent CLI invocation::
 
-    python -m ai_bazaar.main \\
+    python -m agent_bazaar.main \\
         --consumer-scenario THE_CRASH --firm-type LLM \\
         --num-firms 3 --num-consumers 12 \\
         --use-cost-pref-gen --no-diaries --prompt-algo cot \\
@@ -20,10 +20,10 @@ Equivalent CLI invocation::
 
 import sys
 
-from ai_bazaar.main import main
+from agent_bazaar.main import main
 
 QUICKSTART_ARGV = [
-    "ai_bazaar.main",
+    "agent_bazaar.main",
     "--consumer-scenario", "THE_CRASH",
     "--firm-type", "LLM",
     "--num-firms", "3",

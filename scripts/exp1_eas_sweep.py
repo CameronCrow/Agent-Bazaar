@@ -32,7 +32,7 @@ from datetime import datetime
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if not (PROJECT_ROOT / "ai_bazaar").exists():
+if not (PROJECT_ROOT / "agent_bazaar").exists():
     PROJECT_ROOT = Path.cwd()
 
 TIMESTAMP = datetime.now().strftime("%Y-%m-%d_%H-%M")
@@ -122,7 +122,7 @@ def log_run_finished(
 
 
 def run_one(label: str, argv: list[str], model_logs_dir: Path) -> tuple[int, float]:
-    cmd      = [sys.executable, "-m", "ai_bazaar.main"] + argv
+    cmd      = [sys.executable, "-m", "agent_bazaar.main"] + argv
     log_path = model_logs_dir / f"{label}_{TIMESTAMP}.log"
     log(f"Starting: {label}")
     t0 = time.monotonic()

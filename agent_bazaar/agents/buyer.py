@@ -10,9 +10,9 @@ import logging
 import random
 from typing import List, Optional
 
-from ai_bazaar.agents.llm_agent import LLMAgent
-from ai_bazaar.market_core.market_core import Ledger, Market, Order
-from ai_bazaar.utils.common import Message, V_MAX
+from agent_bazaar.agents.llm_agent import LLMAgent
+from agent_bazaar.market_core.market_core import Ledger, Market, Order
+from agent_bazaar.utils.common import Message, V_MAX
 
 BUYER_TRANSACTION_HISTORY_LEN = 10
 

@@ -19,18 +19,18 @@ if __name__ == "__main__" and __package__ is None:
 
 import pytest
 
-from ai_bazaar.market_core.market_core import (
+from agent_bazaar.market_core.market_core import (
     Ledger,
     Market,
     Order,
     Listing,
 )
-from ai_bazaar.agents.firm import BaseFirmAgent, FixedFirmAgent
-from ai_bazaar.agents.seller import SellerAgent
-from ai_bazaar.agents.sybil import SybilIdentity, DeceptivePrincipal
-from ai_bazaar.utils.common import LEMON_MARKET_GOODS, QUALITY_DICT, advertised_quality_for_sybil, V_MAX
-from ai_bazaar.env.bazaar_env import BazaarWorld
-from ai_bazaar.main import create_argument_parser
+from agent_bazaar.agents.firm import BaseFirmAgent, FixedFirmAgent
+from agent_bazaar.agents.seller import SellerAgent
+from agent_bazaar.agents.sybil import SybilIdentity, DeceptivePrincipal
+from agent_bazaar.utils.common import LEMON_MARKET_GOODS, QUALITY_DICT, advertised_quality_for_sybil, V_MAX
+from agent_bazaar.env.bazaar_env import BazaarWorld
+from agent_bazaar.main import create_argument_parser
 
 
 # --- common ---
@@ -363,7 +363,7 @@ def test_deceptive_principal_rotate_identities():
         "--sybil-cluster-size", "2",
         "--llm", "gemini-2.5-flash",
     ])
-    from ai_bazaar.market_core.market_core import Ledger, Market
+    from agent_bazaar.market_core.market_core import Ledger, Market
     ledger = Ledger()
     market = Market()
     principal = DeceptivePrincipal(

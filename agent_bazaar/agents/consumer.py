@@ -3,7 +3,7 @@ import numpy as np
 import math
 import random
 from typing import List, Dict, Any, Optional
-from ai_bazaar.market_core.market_core import Ledger, Market, Order, Quote
+from agent_bazaar.market_core.market_core import Ledger, Market, Order, Quote
 from ..utils.common import PERSONAS, ROLE_MESSAGES
 from ..agents.llm_agent import LLMAgent
 

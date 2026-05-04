@@ -2,7 +2,7 @@ import json
 import os
 import argparse
 import numpy as np
-from ai_bazaar.env.bazaar_env import BazaarWorld
+from agent_bazaar.env.bazaar_env import BazaarWorld
 
 
 def run_eval(args):
@@ -36,7 +36,7 @@ def run_eval(args):
 
 
 if __name__ == "__main__":
-    from ai_bazaar.main import create_argument_parser
+    from agent_bazaar.main import create_argument_parser
 
     parser = create_argument_parser()
     args = parser.parse_args()

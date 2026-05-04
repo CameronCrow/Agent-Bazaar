@@ -18,7 +18,7 @@ from collections import defaultdict
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if not (PROJECT_ROOT / "ai_bazaar").exists():
+if not (PROJECT_ROOT / "agent_bazaar").exists():
     PROJECT_ROOT = Path.cwd()
 
 DEFAULT_LOG_DIRS = [

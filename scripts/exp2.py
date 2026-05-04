@@ -51,7 +51,7 @@ from pathlib import Path
 
 # Project root: parent of scripts/
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if not (PROJECT_ROOT / "ai_bazaar").exists():
+if not (PROJECT_ROOT / "agent_bazaar").exists():
     PROJECT_ROOT = Path.cwd()
 
 TIMESTAMP = datetime.now().strftime("%Y-%m-%d_%H-%M")
@@ -294,7 +294,7 @@ def log_run_finished(
 
 def run_one(log_label: str, args: list[str]) -> tuple[int, float]:
     """Run a single simulation; returns (exit code, elapsed seconds)."""
-    cmd = [sys.executable, "-m", "ai_bazaar.main"] + args
+    cmd = [sys.executable, "-m", "agent_bazaar.main"] + args
     assert LOGS_DIR is not None
     log_path = LOGS_DIR / f"{log_label}_{TIMESTAMP}.log"
     _set_status(log_label, "running")
