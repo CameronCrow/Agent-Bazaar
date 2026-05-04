@@ -1,6 +1,6 @@
 # Simulation Run Commands
 
-Run from the **project root**. Use `python -m ai_bazaar.main` (works without installing the package). After `pip install -e .` you can also use `ai-bazaar` directly.
+Run from the **project root**. Use `python -m agent_bazaar.main` (works without installing the package). After `pip install -e .` you can also use `agent-bazaar` directly.
 
 ---
 
@@ -9,7 +9,7 @@ Run from the **project root**. Use `python -m ai_bazaar.main` (works without ins
 Inspect simulation state in the Streamlit dashboard. State files are stored at `logs/<run_name>/states.json`.
 
 ```bash
-streamlit run ai_bazaar/viz/dashboard.py
+streamlit run agent_bazaar/viz/dashboard.py
 ```
 
 ---
@@ -218,7 +218,7 @@ python scripts/exp3.py --skip-existing
 
 ```bash
 # Supply shock: unit cost → $10 at t=25
-python -m ai_bazaar.main \
+python -m agent_bazaar.main \
   --consumer-scenario THE_CRASH \
   --firm-type LLM --num-firms 5 --num-consumers 50 \
   --use-cost-pref-gen --overhead-costs 14 --max-timesteps 100 \
@@ -226,7 +226,7 @@ python -m ai_bazaar.main \
   --llm gemini-3-flash-preview --seed 8 --name exp3a_test
 
 # Sybil flood: cluster → 80% saturation at t=15 (k_initial=3 → flood_k=36)
-python -m ai_bazaar.main \
+python -m agent_bazaar.main \
   --consumer-scenario LEMON_MARKET \
   --num-sellers 12 --num-buyers 12 \
   --sybil-cluster-size 3 --reputation-initial 0.8 --sybil-rho-min 0.3 \
@@ -332,7 +332,7 @@ For gated models: `export HF_TOKEN="hf_..."` or run `huggingface-cli login` befo
 **Run a simulation against the vLLM server:**
 
 ```bash
-python -m ai_bazaar.main \
+python -m agent_bazaar.main \
   --firm-type LLM --num-firms 3 --num-consumers 20 \
   --llm google/gemma-3-4b-it --service vllm --port 8009 \
   --max-timesteps 10 --name vllm_test
@@ -371,7 +371,7 @@ $env:OLLAMA_NUM_PARALLEL = "4"; ollama serve
 **Run a simulation with Ollama:**
 
 ```bash
-python -m ai_bazaar.main \
+python -m agent_bazaar.main \
   --firm-type LLM --num-firms 2 --num-consumers 10 \
   --llm llama3.1:8b --service ollama --port 11434 \
   --max-timesteps 10 --name ollama_test

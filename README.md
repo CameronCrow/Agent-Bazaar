@@ -1,4 +1,4 @@
-# AI-Bazaar
+# Agent-Bazaar
 
 [Python 3.10+](https://www.python.org/downloads/)
 [License: MIT](https://opensource.org/licenses/MIT)
@@ -22,7 +22,7 @@ As AI agents increasingly operate autonomously in digital marketplaces, their co
 
 We study two canonical failure modes. **THE_CRASH**: in B2C markets, LLM firms engage in a destructive undercutting race until prices fall below unit cost, triggering mass bankruptcy — an LLM-native analog of the 2010 Flash Crash. **THE_LEMON_MARKET**: in C2C markets, a Sybil principal operates *K* coordinated seller identities, rotating them when reputation degrades to perpetuate fraud at scale, an amplified version of Akerlof's market for lemons.
 
-For each failure mode, AI-Bazaar tests intervention mechanisms: **Stabilizing Firms** enforce a price floor against the undercutting spiral; **Skeptical Guardians** detect and reject deceptive listings. We evaluate frontier and open-weight models (3B–405B) across both scenarios and introduce the **Economic Alignment Score (EAS)**, a unified scalar aggregating stability, integrity, welfare, and profitability into a single cross-model metric.
+For each failure mode, Agent Bazaar tests intervention mechanisms: **Stabilizing Firms** enforce a price floor against the undercutting spiral; **Skeptical Guardians** detect and reject deceptive listings. We evaluate frontier and open-weight models (3B–405B) across both scenarios and introduce the **Economic Alignment Score (EAS)**, a unified scalar aggregating stability, integrity, welfare, and profitability into a single cross-model metric.
 
 The simulator builds on infrastructure from [LLM Economist](https://github.com/sethkarten/LLM-Economist/) (consumer/firm scaffolding, the LLM-call layer) and extends it with agent-agent goods trading, firm/buyer/seller/Sybil agents, the EAS metric, and a Streamlit visualization dashboard.
 
@@ -33,15 +33,15 @@ The simulator builds on infrastructure from [LLM Economist](https://github.com/s
 ### 1. Create a conda environment
 
 ```bash
-conda create -n ai-bazaar python=3.12 -y
-conda activate ai-bazaar
+conda create -n agent-bazaar python=3.12 -y
+conda activate agent-bazaar
 ```
 
 ### 2. Install the package
 
 ```bash
 # From PyPI
-pip install ai-bazaar
+pip install agent-bazaar
 
 # Or development install from source
 git clone https://github.com/sethkarten/AI-Bazaar.git
@@ -127,14 +127,14 @@ Use `--llm google/gemma-3-4b-it --service vllm --port 8009` in your simulation c
 
 ```bash
 # THE_CRASH: 5 LLM firms, 50 consumers, 20 timesteps (Gemini)
-python -m ai_bazaar.main \
+python -m agent_bazaar.main \
   --consumer-scenario THE_CRASH \
   --firm-type LLM --num-firms 5 --num-consumers 50 \
   --use-cost-pref-gen --no-diaries --prompt-algo cot \
   --llm gemini-2.5-flash --max-timesteps 20 --name crash_test
 
 # LEMON_MARKET: 12 sellers (3 Sybil), 12 LLM buyers
-python -m ai_bazaar.main \
+python -m agent_bazaar.main \
   --consumer-scenario LEMON_MARKET \
   --num-sellers 12 --num-buyers 12 \
   --sybil-cluster-size 3 --reputation-initial 0.8 \
@@ -142,7 +142,7 @@ python -m ai_bazaar.main \
   --llm gemini-2.5-flash --max-timesteps 20 --name lemon_test
 
 # Local model via Ollama
-python -m ai_bazaar.main \
+python -m agent_bazaar.main \
   --consumer-scenario THE_CRASH \
   --firm-type LLM --num-firms 3 --num-consumers 20 \
   --llm llama3.1:8b --service ollama --port 11434 \
@@ -154,7 +154,7 @@ python -m ai_bazaar.main \
 After running a simulation, inspect results in the Streamlit dashboard:
 
 ```bash
-streamlit run ai_bazaar/viz/dashboard.py
+streamlit run agent_bazaar/viz/dashboard.py
 ```
 
 State files are stored at `logs/<run_name>/states.json`. The dashboard lists all available runs and lets you explore per-timestep market state.
@@ -165,7 +165,7 @@ State files are stored at `logs/<run_name>/states.json`. The dashboard lists all
 
 ```
 AI-Bazaar/
-├── ai_bazaar/              # Main package
+├── agent_bazaar/           # Main package
 │   ├── agents/             # Agent implementations
 │   │   ├── firm.py         # LLM firm / Stabilizing firm
 │   │   ├── buyer.py        # LLM buyer / Skeptical Guardian
@@ -214,7 +214,7 @@ AI-Bazaar/
 Run from the project root:
 
 ```bash
-python -m ai_bazaar.main [OPTIONS]
+python -m agent_bazaar.main [OPTIONS]
 ```
 
 ### Agent Configuration
@@ -473,7 +473,7 @@ You can also run shocks directly:
 
 ```bash
 # Supply shock at t=25
-python -m ai_bazaar.main \
+python -m agent_bazaar.main \
   --consumer-scenario THE_CRASH \
   --firm-type LLM --num-firms 5 --num-consumers 50 \
   --use-cost-pref-gen --overhead-costs 14 --max-timesteps 100 \
@@ -481,7 +481,7 @@ python -m ai_bazaar.main \
   --llm gemini-3-flash-preview --seed 8
 
 # Sybil flood at t=15
-python -m ai_bazaar.main \
+python -m agent_bazaar.main \
   --consumer-scenario LEMON_MARKET \
   --num-sellers 12 --num-buyers 12 \
   --sybil-cluster-size 3 --reputation-initial 0.8 \
@@ -542,7 +542,7 @@ python scripts/exp1.py \
 The listing corpus (`corpus/listing_corpus.json`) eliminates seller LLM calls in lemon experiments, saving compute:
 
 ```bash
-python -m ai_bazaar.main \
+python -m agent_bazaar.main \
   --consumer-scenario LEMON_MARKET \
   --num-sellers 12 --num-buyers 12 \
   --sybil-cluster-size 3 \
@@ -563,7 +563,7 @@ python scripts/compile_listing_corpus.py
 pytest tests/ -v
 
 # With coverage
-pytest tests/ --cov=ai_bazaar --cov-report=html
+pytest tests/ --cov=agent_bazaar --cov-report=html
 
 # Individual test modules
 pytest tests/test_bazaar_env.py -v
