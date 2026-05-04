@@ -200,7 +200,7 @@ AI-Bazaar/
 │   ├── compile_listing_corpus.py
 │   ├── consolidate_states.py
 │   └── extract_sybil_prompts.py
-├── data/                   # Demographic and corpus data
+├── corpus/                 # Pre-compiled listing corpus for LEMON_MARKET
 ├── documentation/          # Run commands and model reference
 ├── eval_logs/              # Reference evaluation data
 ├── examples/               # Usage examples
@@ -541,14 +541,14 @@ python scripts/exp1.py \
   --workers 5 --skip-existing
 ```
 
-The listing corpus (`data/listing_corpus.json`) eliminates seller LLM calls in lemon experiments, saving compute:
+The listing corpus (`corpus/listing_corpus.json`) eliminates seller LLM calls in lemon experiments, saving compute:
 
 ```bash
 python -m ai_bazaar.main \
   --consumer-scenario LEMON_MARKET \
   --num-sellers 12 --num-buyers 12 \
   --sybil-cluster-size 3 \
-  --listing-corpus data/listing_corpus.json \
+  --listing-corpus corpus/listing_corpus.json \
   --buyer-llm guardian --service vllm --port 8000 \
   --max-timesteps 50 --seed 8
 

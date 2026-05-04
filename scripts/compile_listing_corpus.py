@@ -5,11 +5,11 @@ Compile a listing corpus from completed Gemini exp2 lemon market runs.
 Walks logs/exp2_gemini-3-flash-preview/ and logs/(OLD) exp2_gemini-3-flash-preview/,
 extracts every lemon_market_new_listings entry from states.json, strips run-specific
 fields (id, firm_id, reputation, timestep_posted), and saves a flat JSON list to
-data/listing_corpus.json indexed by (is_sybil, quality).
+corpus/listing_corpus.json indexed by (is_sybil, quality).
 
 Usage (from project root):
     python scripts/compile_listing_corpus.py
-    python scripts/compile_listing_corpus.py --out data/listing_corpus.json
+    python scripts/compile_listing_corpus.py --out corpus/listing_corpus.json
     python scripts/compile_listing_corpus.py --log-dirs logs/exp2_gemini-3-flash-preview
 """
 import argparse
@@ -25,7 +25,7 @@ DEFAULT_LOG_DIRS = [
     "logs/exp2_gemini-3-flash-preview",
     "logs/(OLD) exp2_gemini-3-flash-preview",
 ]
-DEFAULT_OUT = "data/listing_corpus.json"
+DEFAULT_OUT = "corpus/listing_corpus.json"
 
 
 def collect_listings(log_dirs: list[Path]) -> list[dict]:

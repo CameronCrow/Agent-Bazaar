@@ -452,7 +452,7 @@ python scripts/exp1.py \
 # Lemon experiments: base model (sellers use corpus), guardian adapter for buyers
 python scripts/exp2.py \
   --llm ./models/Qwen3.5-9B --buyer-llm guardian \
-  --listing-corpus data/listing_corpus.json \
+  --listing-corpus corpus/listing_corpus.json \
   --service vllm --port 8000 --workers 5 --skip-existing
 ```
 
@@ -460,7 +460,7 @@ The `--stab-llm` and `--buyer-llm` flags are supported by all experiment scripts
 
 ### Listing corpus feeder
 
-Pre-compiling seller/sybil descriptions eliminates LLM calls on the seller side in lemon experiments. Pass `--listing-corpus data/listing_corpus.json` to activate:
+Pre-compiling seller/sybil descriptions eliminates LLM calls on the seller side in lemon experiments. Pass `--listing-corpus corpus/listing_corpus.json` to activate:
 
 ```bash
 # Rebuild the corpus from existing exp2 logs
