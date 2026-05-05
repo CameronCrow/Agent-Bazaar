@@ -1,275 +1,105 @@
-"""
-Script to run the main experiments from the LLM Economist paper.
+"""Top-level orchestrator for the headline Agent Bazaar experiments.
+
+Each experiment is implemented in its own ``scripts/exp*.py`` runner, with
+its own filtering / parallelism / model-selection CLI. This module is a
+thin dispatcher: it selects which runner(s) to invoke and forwards any
+extra CLI arguments through to them.
+
+Usage examples (run from the project root)::
+
+    # List the registered experiments and exit
+    python -m experiments.run_experiments --list
+
+    # Run THE_CRASH main sweep, forwarding flags to scripts/exp1.py
+    python -m experiments.run_experiments --experiment crash -- --dlc 3 --n-stab 3 --seeds 8
+
+    # Run LEMON_MARKET main sweep with 3 parallel workers
+    python -m experiments.run_experiments --experiment lemon -- --workers 3 \\
+        --seller-llm google/gemma-3-12b-it
+
+    # Run every registered experiment in order (long; respects --skip-existing)
+    python -m experiments.run_experiments --experiment all -- --skip-existing
+
+For per-experiment options run the underlying script with ``--help``,
+e.g. ``python scripts/exp1.py --help``.
 """
 
-import os
-import sys
-import subprocess
 import argparse
-from typing import List, Dict, Any
+import subprocess
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+SCRIPTS_DIR = PROJECT_ROOT / "scripts"
+
+# (alias, script filename, one-line description). The aliases are stable;
+# rename the underlying scripts freely without touching callers.
+EXPERIMENTS: list[tuple[str, str, str]] = [
+    ("crash",            "exp1.py",                     "THE_CRASH main sweep (B2C; firms x discovery x stabilizers x seeds)"),
+    ("crash_eas",        "exp1_eas_sweep.py",           "THE_CRASH x open-weight model size sweep (3B-405B)"),
+    ("lemon",            "exp2.py",                     "LEMON_MARKET main sweep (C2C; Sybil saturation x reputation visibility)"),
+    ("lemon_no_seller",  "exp2_2.py",                   "LEMON_MARKET no-seller-IDs ablation"),
+    ("lemon_eas",        "exp2_eas_sweep.py",           "LEMON_MARKET x buyer model capability sweep"),
+    ("shocks",           "exp3.py",                     "Adversarial shocks (mid-episode unit-cost shock; Sybil flood)"),
+    ("shocks_eas",       "exp3_open_weights_sweep.py",  "Adversarial shocks x open-weight model sweep"),
+    ("dlf",              "exp5.py",                     "Discovery-limit-firms ablation (firm-side info, mirrors exp1)"),
+    ("personas",         "exp6.py",                     "Consumer procedural persona ablation"),
+]
+ALIASES = [alias for alias, _, _ in EXPERIMENTS]
+SCRIPT_BY_ALIAS = {alias: script for alias, script, _ in EXPERIMENTS}
 
 
-def run_command(cmd: List[str], description: str = ""):
-    """Run a command and handle errors."""
-    print(f"Running: {description}")
-    print(f"Command: {' '.join(cmd)}")
-
-    try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        print(f"Success: {description}")
-        return result
-    except subprocess.CalledProcessError as e:
-        print(f"Error running {description}: {e}")
-        print(f"stderr: {e.stderr}")
-        return None
+def _print_table() -> None:
+    print("Available experiments:")
+    print(f"  {'alias':<18}  {'script':<32}  description")
+    print(f"  {'-' * 18}  {'-' * 32}  {'-' * 11}")
+    for alias, script, desc in EXPERIMENTS:
+        print(f"  {alias:<18}  scripts/{script:<24}  {desc}")
 
 
-def rational_agents_experiment(args):
-    """Run rational agents experiment."""
-    base_cmd = [
-        sys.executable, "-m", "agent_bazaar.main",
-        "--scenario", "rational",
-        "--num-agents", str(args.num_agents),
-        "--worker-type", "LLM",
-        "--planner-type", "LLM",
-        "--max-timesteps", str(args.max_timesteps),
-        "--history-len", str(args.history_len),
-        "--two-timescale", str(args.two_timescale),
-        "--prompt-algo", args.prompt_algo,
-        "--llm", args.llm
-    ]
-
-    if args.wandb:
-        base_cmd.append("--wandb")
-
-    if args.port:
-        base_cmd.extend(["--port", str(args.port)])
-
-    if args.service:
-        base_cmd.extend(["--service", args.service])
-
-    return run_command(base_cmd, "Rational Agents Experiment")
+def _run_one(alias: str, forwarded: list[str]) -> int:
+    script = SCRIPTS_DIR / SCRIPT_BY_ALIAS[alias]
+    cmd = [sys.executable, str(script), *forwarded]
+    print(f"\n>>> [{alias}] {' '.join(cmd)}", flush=True)
+    return subprocess.call(cmd, cwd=PROJECT_ROOT)
 
 
-def bounded_rational_experiment(args):
-    """Run bounded rational agents experiment."""
-    base_cmd = [
-        sys.executable, "-m", "agent_bazaar.main",
-        "--scenario", "bounded",
-        "--num-agents", str(args.num_agents),
-        "--worker-type", "LLM",
-        "--planner-type", "LLM",
-        "--max-timesteps", str(args.max_timesteps),
-        "--history-len", str(args.history_len),
-        "--two-timescale", str(args.two_timescale),
-        "--prompt-algo", args.prompt_algo,
-        "--llm", args.llm,
-        "--percent-ego", str(args.percent_ego),
-        "--percent-alt", str(args.percent_alt),
-        "--percent-adv", str(args.percent_adv)
-    ]
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description=__doc__.splitlines()[0],
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="Anything after `--` is forwarded verbatim to the chosen runner. "
+               "Use scripts/<runner>.py --help for per-experiment flags.",
+    )
+    parser.add_argument(
+        "--experiment",
+        choices=ALIASES + ["all"],
+        default=None,
+        help="Which experiment to run. Use --list to see all aliases.",
+    )
+    parser.add_argument(
+        "--list", action="store_true",
+        help="Print the registered experiments and exit.",
+    )
+    args, forwarded = parser.parse_known_args()
 
-    if args.wandb:
-        base_cmd.append("--wandb")
+    if args.list or args.experiment is None:
+        _print_table()
+        return 0
 
-    if args.port:
-        base_cmd.extend(["--port", str(args.port)])
+    if args.experiment == "all":
+        results: list[tuple[str, int]] = []
+        for alias in ALIASES:
+            rc = _run_one(alias, forwarded)
+            results.append((alias, rc))
+        failed = [alias for alias, rc in results if rc != 0]
+        if failed:
+            print(f"\nFailed: {failed}", file=sys.stderr)
+            return 1
+        return 0
 
-    if args.service:
-        base_cmd.extend(["--service", args.service])
-
-    return run_command(base_cmd, "Bounded Rational Agents Experiment")
-
-
-def democratic_voting_experiment(args):
-    """Run democratic voting experiment."""
-    base_cmd = [
-        sys.executable, "-m", "agent_bazaar.main",
-        "--scenario", "democratic",
-        "--num-agents", str(args.num_agents),
-        "--worker-type", "LLM",
-        "--planner-type", "LLM",
-        "--max-timesteps", str(args.max_timesteps),
-        "--history-len", str(args.history_len),
-        "--two-timescale", str(args.two_timescale),
-        "--prompt-algo", args.prompt_algo,
-        "--llm", args.llm
-    ]
-
-    if args.wandb:
-        base_cmd.append("--wandb")
-
-    if args.port:
-        base_cmd.extend(["--port", str(args.port)])
-
-    if args.service:
-        base_cmd.extend(["--service", args.service])
-
-    return run_command(base_cmd, "Democratic Voting Experiment")
-
-
-def llm_comparison_experiment(args):
-    """Run LLM comparison experiment."""
-    models = ["gpt-4o-mini", "llama3:8b", "meta-llama/llama-3.1-8b-instruct"]
-
-    for model in models:
-        base_cmd = [
-            sys.executable, "-m", "agent_bazaar.main",
-            "--scenario", "rational",
-            "--num-agents", str(args.num_agents),
-            "--worker-type", "LLM",
-            "--planner-type", "LLM",
-            "--max-timesteps", str(args.max_timesteps),
-            "--history-len", str(args.history_len),
-            "--two-timescale", str(args.two_timescale),
-            "--prompt-algo", args.prompt_algo,
-            "--llm", model
-        ]
-
-        if args.wandb:
-            base_cmd.append("--wandb")
-
-        if args.port and "llama" in model:
-            base_cmd.extend(["--port", str(args.port)])
-
-        if args.service and "llama" in model:
-            base_cmd.extend(["--service", args.service])
-
-        run_command(base_cmd, f"LLM Comparison - {model}")
-
-
-def scalability_experiment(args):
-    """Run scalability experiment with different numbers of agents."""
-    agent_counts = [5, 10, 25, 50, 100]
-
-    for num_agents in agent_counts:
-        base_cmd = [
-            sys.executable, "-m", "agent_bazaar.main",
-            "--scenario", "rational",
-            "--num-agents", str(num_agents),
-            "--worker-type", "LLM",
-            "--planner-type", "LLM",
-            "--max-timesteps", str(args.max_timesteps),
-            "--history-len", str(args.history_len),
-            "--two-timescale", str(args.two_timescale),
-            "--prompt-algo", args.prompt_algo,
-            "--llm", args.llm
-        ]
-
-        if args.wandb:
-            base_cmd.append("--wandb")
-
-        if args.port:
-            base_cmd.extend(["--port", str(args.port)])
-
-        if args.service:
-            base_cmd.extend(["--service", args.service])
-
-        run_command(base_cmd, f"Scalability Test - {num_agents} agents")
-
-
-
-def tax_year_ablation_experiment(args):
-    """Run tax year length ablation experiment."""
-    timescales = [5, 10, 25, 50, 100]
-
-    for timescale in timescales:
-        # Adjust max_timesteps to have similar number of tax years
-        max_timesteps = timescale * 20  # 20 tax years
-
-        base_cmd = [
-            sys.executable, "-m", "agent_bazaar.main",
-            "--scenario", "rational",
-            "--num-agents", str(args.num_agents),
-            "--worker-type", "LLM",
-            "--planner-type", "LLM",
-            "--max-timesteps", str(max_timesteps),
-            "--history-len", str(args.history_len),
-            "--two-timescale", str(timescale),
-            "--prompt-algo", args.prompt_algo,
-            "--llm", args.llm
-        ]
-
-        if args.wandb:
-            base_cmd.append("--wandb")
-
-        if args.port:
-            base_cmd.extend(["--port", str(args.port)])
-
-        if args.service:
-            base_cmd.extend(["--service", args.service])
-
-        run_command(base_cmd, f"Tax Year Ablation - {timescale} steps")
-
-
-def main():
-    """Main experiment runner."""
-    parser = argparse.ArgumentParser(description="Run LLM Economist experiments")
-
-    # Experiment selection
-    parser.add_argument("--experiment", type=str, default="all",
-                        choices=["rational", "bounded", "democratic",
-                                "llm_comparison", "scalability",
-                                "tax_year_ablation", "all"],
-                        help="Which experiment to run")
-
-    # Common parameters
-    parser.add_argument("--num-agents", type=int, default=5,
-                        help="Number of agents")
-    parser.add_argument("--max-timesteps", type=int, default=2500,
-                        help="Maximum timesteps")
-    parser.add_argument("--history-len", type=int, default=50,
-                        help="History length")
-    parser.add_argument("--two-timescale", type=int, default=25,
-                        help="Two timescale parameter")
-    parser.add_argument("--prompt-algo", type=str, default="io",
-                        choices=["io", "cot"],
-                        help="Prompting algorithm")
-    parser.add_argument("--llm", type=str, default="gpt-4o-mini",
-                        help="LLM model to use")
-    parser.add_argument("--port", type=int, default=8000,
-                        help="Port for local LLM server")
-    parser.add_argument("--service", type=str, default="vllm",
-                        choices=["vllm", "ollama"],
-                        help="Local LLM service")
-
-    # Bounded rationality parameters
-    parser.add_argument("--percent-ego", type=int, default=100,
-                        help="Percentage of egotistical agents")
-    parser.add_argument("--percent-alt", type=int, default=0,
-                        help="Percentage of altruistic agents")
-    parser.add_argument("--percent-adv", type=int, default=0,
-                        help="Percentage of adversarial agents")
-
-    # Logging
-    parser.add_argument("--wandb", action="store_true",
-                        help="Enable WandB logging")
-
-    args = parser.parse_args()
-
-    # Run selected experiment(s)
-    if args.experiment == "rational" or args.experiment == "all":
-        rational_agents_experiment(args)
-
-    if args.experiment == "bounded" or args.experiment == "all":
-        bounded_rational_experiment(args)
-
-    if args.experiment == "democratic" or args.experiment == "all":
-        democratic_voting_experiment(args)
-
-    if args.experiment == "llm_comparison" or args.experiment == "all":
-        llm_comparison_experiment(args)
-
-    if args.experiment == "scalability" or args.experiment == "all":
-        scalability_experiment(args)
-
-
-
-    if args.experiment == "tax_year_ablation" or args.experiment == "all":
-        tax_year_ablation_experiment(args)
-
-    print("Experiments completed!")
+    return _run_one(args.experiment, forwarded)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
