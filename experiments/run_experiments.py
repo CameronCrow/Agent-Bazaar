@@ -42,7 +42,7 @@ EXPERIMENTS: list[tuple[str, str, str]] = [
     ("lemon_eas",        "exp2_eas_sweep.py",           "LEMON_MARKET x buyer model capability sweep"),
     ("shocks",           "exp3.py",                     "Adversarial shocks (mid-episode unit-cost shock; Sybil flood)"),
     ("shocks_eas",       "exp3_open_weights_sweep.py",  "Adversarial shocks x open-weight model sweep"),
-    ("dlf",              "exp5.py",                     "Discovery-limit-firms ablation (firm-side info, mirrors exp1)"),
+    ("dlf",              "exp5.py",                     "Discovery-limit-firms ablation (firm-side info; 54-cell THE_CRASH sweep)"),
     ("personas",         "exp6.py",                     "Consumer procedural persona ablation"),
 ]
 ALIASES = [alias for alias, _, _ in EXPERIMENTS]
