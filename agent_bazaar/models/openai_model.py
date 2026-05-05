@@ -1,5 +1,5 @@
 """
-OpenAI model implementation for the LLM Economist framework.
+OpenAI model implementation for Agent Bazaar.
 """
 
 from typing import Tuple, Optional

@@ -27,7 +27,6 @@ from ..utils.common import (
 )
 
 
-from ..agents.planner import TaxPlanner, FixedTaxPlanner
 from ..utils.heterogeneity import create_heterogeneity
 
 DEFAULT_SUPPLY_UNIT_COSTS = {

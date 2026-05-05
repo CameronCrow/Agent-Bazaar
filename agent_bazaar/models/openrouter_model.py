@@ -1,5 +1,5 @@
 """
-OpenRouter model implementation for the LLM Economist framework.
+OpenRouter model implementation for Agent Bazaar.
 """
 
 from typing import Tuple, Optional, Any
@@ -73,8 +73,8 @@ class OpenRouterModel(BaseLLMModel):
         # Headers for OpenRouter API
         self.headers = {
             "Authorization": f"Bearer {api_key}",
-            "HTTP-Referer": "https://github.com/sethkarten/LLMEconomist",
-            "X-Title": "LLM Economist",
+            "HTTP-Referer": "https://github.com/sethkarten/AI-Bazaar",
+            "X-Title": "Agent Bazaar",
             "Content-Type": "application/json"
         }
 

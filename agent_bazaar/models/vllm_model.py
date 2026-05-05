@@ -1,5 +1,5 @@
 """
-vLLM model implementation for the LLM Economist framework.
+vLLM model implementation for Agent Bazaar.
 """
 
 from typing import Tuple, Optional

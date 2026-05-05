@@ -1,5 +1,5 @@
 """
-Gemini model implementation for the LLM Economist framework.
+Gemini model implementation for Agent Bazaar.
 """
 
 from typing import Tuple, Optional

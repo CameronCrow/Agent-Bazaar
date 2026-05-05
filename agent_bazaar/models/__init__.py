@@ -1,5 +1,5 @@
 """
-LLM model implementations for the LLM Economist framework.
+LLM model implementations for Agent Bazaar.
 """
 
 from .base import BaseLLMModel

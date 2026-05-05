@@ -1,5 +1,5 @@
 """
-Base class for LLM models in the LLM Economist framework.
+Base class for LLM models in Agent Bazaar.
 """
 
 import json
