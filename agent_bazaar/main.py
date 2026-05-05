@@ -1,5 +1,5 @@
 """
-Main entry point for the LLM Economist marketplace simulation.
+Main entry point for the Agent Bazaar marketplace simulation.
 
 This simulation consists of:
 - FirmAgent: Firms that produce goods and set prices
@@ -158,7 +158,7 @@ def run_marketplace_simulation(args, llm_instance=None):
 
 def create_argument_parser():
     """Create and return the argument parser for marketplace simulation."""
-    parser = argparse.ArgumentParser(description="LLM Economist Marketplace Simulation")
+    parser = argparse.ArgumentParser(description="Agent Bazaar Marketplace Simulation")
 
     # Agent configuration
     parser.add_argument(

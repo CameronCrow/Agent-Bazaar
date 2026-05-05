@@ -1,3 +1,3 @@
 """
-Example scripts for the LLM Economist framework.
+Example scripts for Agent Bazaar.
 """

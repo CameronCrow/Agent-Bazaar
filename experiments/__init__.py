@@ -1,3 +1,3 @@
 """
-Experiment scripts for the LLM Economist framework.
+Experiment scripts for Agent Bazaar.
 """

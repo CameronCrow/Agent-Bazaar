@@ -1,5 +1,5 @@
 """
-Utility functions for the LLM Economist framework.
+Utility functions for Agent Bazaar.
 """
 
 from .common import *

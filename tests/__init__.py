@@ -1,3 +1,3 @@
 """
-Test suite for the LLM Economist framework.
+Test suite for Agent Bazaar.
 """
