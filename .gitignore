@@ -27,6 +27,10 @@ COLM.zip
 RELEASE_EXPERIMENTS.md
 APPENDIX_EXPERIMENTS.md
 
+# Local scan artifacts (gitleaks)
+.gitleaks.toml
+gitleaks_report.json
+
 # Dev scratch
 debug*.py
 debug*.log
