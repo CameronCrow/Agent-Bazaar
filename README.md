@@ -170,9 +170,7 @@ AI-Bazaar/
 │   │   ├── firm.py         # LLM firm / Stabilizing firm
 │   │   ├── buyer.py        # LLM buyer / Skeptical Guardian
 │   │   ├── seller.py       # LLM seller / Sybil principal
-│   │   ├── consumer.py     # CES consumer
-│   │   ├── planner.py      # Tax planner (legacy)
-│   │   └── worker.py       # Worker agent (legacy)
+│   │   └── consumer.py     # CES consumer
 │   ├── models/             # LLM provider integrations
 │   │   ├── openai_model.py
 │   │   ├── gemini_model.py
