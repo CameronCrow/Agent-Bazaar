@@ -3,7 +3,7 @@ name = "agent-bazaar"
 version = "1.0.0"
 description = "A framework for economic simulations using Large Language Models"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
     "numpy",
     "wandb",
