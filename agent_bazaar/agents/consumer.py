@@ -193,8 +193,6 @@ class CESConsumerAgent(LLMAgent):
         cost_of_living = 0.0
         total = 0.0
         quotes = self.market.quotes
-        # for quote in quotes:
-            # self.logger.info(f"Quote: {quote.good}: {quote.price}")
 
         for good in self.goods:
             good_str = str(good).strip()
