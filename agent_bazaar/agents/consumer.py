@@ -145,7 +145,6 @@ class CESConsumerAgent(LLMAgent):
             goods_total += alpha * (quantity ** ((self.sigma - 1) / self.sigma))
         return goods_total ** (self.sigma / (self.sigma - 1))
 
-    #! TODO: Implement CRRA savings
     def compute_cash_utility(self) -> float:
         if self.use_crra_savings:
             return 0.0

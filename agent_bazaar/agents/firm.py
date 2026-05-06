@@ -518,14 +518,10 @@ Rules:
             production_percentages = [p / total_pct for p in production_percentages]
         else:
             # Default to even distribution
-            #!TODO: Reprompt the LLM to produce a valid distribution
             production_percentages = [1.0 / len(self.goods)] * len(self.goods)
 
         # Produce goods according to LLM's allocation
         production_dict = {}
-        #! Zip may result in error if LLM does not produce a valid distribution or doesn't match 1:1 with goods list
-        #! TODO: Could add token matching to map goods given by LLM to inventory goods if this is a substaintial issue
-        #! Make parser smart enough to handle this and detect when a good is omitted (production % = 0)
         for good, pct in zip(self.goods, production_percentages):
             quantity = supply_available * pct
             self.ledger.add_good(self.name, good, quantity)
