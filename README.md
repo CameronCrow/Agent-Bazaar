@@ -378,7 +378,7 @@ Logs: `logs/exp1_<model>/`
 
 #### Experiment 1 — EAS × Model Size sweep
 
-Runs the full Exp1 matrix for all dense open-weight models (3B–405B) via OpenRouter. The model list is hard-coded in `scripts/exp1_eas_sweep.py`; pass `--models <substring> [<substring> …]` to filter.
+Runs the full Exp1 matrix for every dense open-weight model listed in [`documentation/open_weights_models.json`](documentation/open_weights_models.json) via OpenRouter. Add or remove models by editing that file — each entry is `{"display_name": "...", "params_b": <float>, "slug": "<openrouter-slug>"}`. The repo ships with a single example entry; populate it with the models you want to sweep. Use `--models <substring> [<substring> …]` to filter the loaded list.
 
 ```bash
 # All models, 4 parallel workers
@@ -589,7 +589,7 @@ Any model accessible via the following backends is supported:
 | vLLM (local)               | `--service vllm --llm hf/model-id`               | Any HF model or LoRA alias                                     |
 
 
-The open-weight model list used by the EAS sweep (`scripts/exp1_eas_sweep.py`, `scripts/exp3_open_weights_sweep.py`) is defined in those scripts.
+The open-weight model list used by the EAS sweep scripts (`scripts/exp1_eas_sweep.py`, `scripts/exp2_eas_sweep.py`, `scripts/exp3_open_weights_sweep.py`) is loaded at runtime from [`documentation/open_weights_models.json`](documentation/open_weights_models.json). To add or remove models, edit that file — no code changes required.
 
 ---
 
