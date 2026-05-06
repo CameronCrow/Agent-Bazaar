@@ -334,45 +334,6 @@ PERSONA_PERCENTS = [
     10,  # software_engineer
 ]
 
-def labor_list(num_agents):
-    base_value = 50
-    offset = 10
-
-    # Start value decreases as the number of agents increases
-    start_value = base_value - (num_agents - 1) * offset // 2
-
-    # Generate the list
-    return [abs(start_value + i * offset) % 100 for i in range(num_agents)]
-
-def count_votes(votes_list: list):
-    # Count votes for each candidate
-    max_count = max(votes_list.count(vote) for vote in set(votes_list))
-
-    # Find all candidates with the maximum count
-    tied_candidates = [vote for vote in set(votes_list) if votes_list.count(vote) == max_count]
-
-    # Randomly select a candidate from the tied candidates, winner
-    elected_tax_planner = random.choice(tied_candidates)
-
-    # Extract the integer index from the winner's name
-    #elected_tax_planner = int(winner.split("_")[-1])
-
-    return elected_tax_planner
-
-def distribute_agents(num_agents, agent_mix):
-    # Calculate the approximate number of agents in each group
-    adversarial_agents = round(agent_mix[2] / 100 * num_agents)
-    selfless_agents = round(agent_mix[1] / 100 * num_agents)
-    greedy_agents = num_agents - adversarial_agents - selfless_agents  # Remaining agents go to greedy
-
-    # Return a list of agent types
-    agents = ['adversarial'] * adversarial_agents + ['altruistic'] * selfless_agents + ['egotistical'] * greedy_agents
-
-    # Shuffle the list to randomize agent assignments
-    random.shuffle(agents)
-
-    return agents
-
 # Following R source code from GAMLSS package
 # Default is U.S. Income distribution from ACS 2023
 def qGB2(p, mu=72402.78177917618, sigma=2.0721070746154746, nu=0.48651871959386955, tau=1.1410398548220329, lower_tail=True, log_p=False):

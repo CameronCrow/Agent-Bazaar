@@ -9,7 +9,6 @@ from ..models.openai_model import OpenAIModel
 from ..models.vllm_model import VLLMModel, OllamaModel
 from ..models.openrouter_model import OpenRouterModel
 from ..models.gemini_model import GeminiModel, GeminiModelViaOpenRouter
-from ..utils.bracket import get_num_brackets, get_default_rates
 from collections import Counter
 import numpy as np
 
@@ -30,10 +29,6 @@ class LLMAgent:
         service=None,
     ) -> None:
         assert args is not None
-
-        self.bracket_setting = args.bracket_setting
-        self.num_brackets = get_num_brackets(self.bracket_setting)
-        self.tax_rates = get_default_rates(self.bracket_setting)
 
         self.logger = logging.getLogger("main")
         self.name = name
@@ -977,30 +972,6 @@ Reformat the malformed JSON to match the expected format. Output must contain ev
 
     def add_message(self, timestep: int, m_type: Message, **args) -> None:
         raise NotImplementedError
-
-    def parse_tax(self, items: list[str]) -> tuple:
-        # self.logger.info("[parse_tax]", tax_rates)
-        tax_rates = items[0]
-        output_tax_rates = []
-        if len(tax_rates) != self.num_brackets:  # fixed to 2 tax divisions
-            raise ValueError("too many tax values", tax_rates)
-        for i, rate in enumerate(tax_rates):
-            if isinstance(rate, str):
-                rate = rate.replace("$", "").replace(",", "").replace("%", "")
-            rate = float(rate)
-            rate = np.clip(rate, -self.delta, self.delta)
-            rate = np.round(rate / 10) * 10
-            # rate = np.round(rate / 10) * 10
-            if rate + self.tax_rates[i] > 100:
-                rate = 100 - self.tax_rates[i]
-            elif rate + self.tax_rates[i] < 0:
-                rate = -self.tax_rates[i]
-            # if rate > 100: rate = 100
-            # if rate > 100 or rate < 0:
-            #     raise ValueError(f'Rates outside bounds: 0 <= {rate} <= 100')
-            output_tax_rates.append(rate)
-        # return (output_tax_rates, float(items[1]))
-        return (output_tax_rates,)
 
 
 class TestAgent(LLMAgent):

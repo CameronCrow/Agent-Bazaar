@@ -24,7 +24,6 @@ from agent_bazaar.utils.common import Message, V_MAX
 
 def _make_args(**kwargs):
     defaults = dict(
-        bracket_setting="three",
         no_diaries=True,
         no_buyer_rep=False,
         use_parsing_agent=False,

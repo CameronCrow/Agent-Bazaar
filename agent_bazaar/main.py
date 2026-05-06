@@ -475,13 +475,6 @@ def create_argument_parser():
             "Example: --openrouter-provider anthropic. If omitted, OpenRouter auto-selects."
         ),
     )
-    parser.add_argument(
-        "--bracket-setting",
-        default="three",
-        choices=["flat", "three", "US_FED"],
-        help="Tax bracket setting (legacy, not used in marketplace)",
-    )
-
     # Logging and tracking
     parser.add_argument("--name", type=str, default="", help="Experiment name")
     parser.add_argument(
