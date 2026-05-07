@@ -1,10 +1,30 @@
+"""Market clearing and balance-sheet bookkeeping.
+
+The two primitives here — ``Ledger`` (cash + per-good inventories) and
+``Market`` (an order/quote/listing book that clears each step) — are shared
+by every scenario. ``Market.clear`` matches each ``Order`` against either a
+``Quote`` (B2C scenarios) or a ``Listing`` (LEMON_MARKET) and routes the cash
+and goods through the ledger atomically. All firm and consumer balance
+operations in the simulator must go through ``Ledger`` so state is consistent
+when the env serialises the world.
+"""
 # LEDGER
 import logging
 from typing import List
 from agent_bazaar.agents.llm_agent import LLMAgent
 
 class Ledger:
+    """Single source of truth for agent cash and per-good inventories.
+
+    All firm/consumer balance changes flow through ``credit``,
+    ``transfer_money``, ``transfer_good``, and ``add_good`` so the pre- and
+    post-clearing snapshots used by reflection / state serialisation stay
+    consistent. ``copy()`` produces an independent snapshot used to compute
+    revenue and expenses around market clearing.
+    """
+
     def __init__(self):
+        """Create an empty ledger with no agents registered."""
         self.agent_money = {}  # agent_id -> money amount
         self.agent_inventories = {}  # agent_id -> {good: quantity}
 
@@ -46,6 +66,7 @@ class Ledger:
         self.agent_inventories[to_agent][good] = self.agent_inventories[to_agent].get(good, 0) + quantity
 
     def add_good(self, to_agent: str, good: str, quantity: float):
+        """Increment ``to_agent``'s inventory of ``good`` by ``quantity`` (signed); pass a negative quantity to consume goods."""
         if to_agent not in self.agent_inventories:
             self.agent_inventories[to_agent] = {}
         self.agent_inventories[to_agent][good] = self.agent_inventories[to_agent].get(good, 0) + quantity
@@ -59,6 +80,7 @@ from typing import List, Optional, Any
 
 @dataclass
 class Order:
+    """A buy order: ``consumer_id`` wants ``quantity`` of ``good`` from ``firm_id`` at up to ``max_price`` per unit; ``listing_id`` targets a specific Listing in LEMON_MARKET."""
     consumer_id: str
     firm_id: str
     good: str
@@ -68,6 +90,7 @@ class Order:
 
 @dataclass
 class Quote:
+    """A sell-side quote: ``firm_id`` offers up to ``quantity_available`` of ``good`` at ``price`` per unit (B2C scenarios)."""
     firm_id: str
     good: str
     price: float
@@ -85,7 +108,16 @@ class Listing:
     quality_value: float
 
 class Market:
+    """Order/quote/listing book that clears once per timestep.
+
+    Quotes and listings persist on the book until replaced or cleared;
+    orders are FIFO-consumed by ``clear`` against either the matching quote
+    (B2C) or the targeted listing (LEMON_MARKET). Listings are removed once
+    fulfilled so a single car cannot be sold twice.
+    """
+
     def __init__(self):
+        """Create an empty market with no pending orders, quotes, or listings."""
         self.orders = deque()  # Queue of pending orders
         self.quotes = []  # List of current quotes
         self.listings = []  # List of Listing for LEMON_MARKET (cleared each step via post_listings)
@@ -95,7 +127,7 @@ class Market:
         self.orders.append(order)
 
     def post_quote(self, quote: Quote):
-        """Post a quote to the market"""
+        """Post or replace a quote (one quote per (firm, good))."""
         # Remove existing quote from same firm for same good
         self.quotes = [q for q in self.quotes if not (q.firm_id == quote.firm_id and q.good == quote.good)]
         self.quotes.append(quote)
