@@ -47,10 +47,12 @@ class LemonTrainer(REINFORCETrainer):
     """
 
     def __init__(self, model_name: str, args):
+        """Initialise like ``REINFORCETrainer`` and seed the running detection rate at zero."""
         super().__init__(model_name, args)
         self.last_detection_rate = 0.0
 
     def collect_trajectories(self, num_episodes: int, iteration: int):
+        """Roll out parallel LEMON_MARKET episodes; reward = sybil detection + consumer surplus + market health for the guardian buyer."""
         t0 = time.time()
         all_trajs, stats_list = [], []
         w_detect, w_surplus, w_health = self.reward_weights[:3]
@@ -331,6 +333,7 @@ def buyer_sft_examples(tokenizer, num_examples=200, args=None):
 # ---------------------------------------------------------------------------
 
 def main():
+    """CLI entry point: parse args, build a ``LemonTrainer``, run SFT warmup then the RL loop."""
     parser = create_argument_parser()
     parser.add_argument("--lr", type=float, default=5e-6)
     parser.add_argument("--num_episodes", type=int, default=16)

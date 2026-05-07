@@ -47,11 +47,13 @@ from agent_bazaar.main import create_argument_parser
 class WelfordRunningStats:
     """Welford's online algorithm for running mean/variance."""
     def __init__(self):
+        """Reset accumulators to zero counts."""
         self.n = 0
         self.mean = 0.0
         self.M2 = 0.0
 
     def update(self, x: float):
+        """Incorporate sample ``x`` into the running mean / second moment."""
         self.n += 1
         delta = x - self.mean
         self.mean += delta / self.n
@@ -62,6 +64,7 @@ class WelfordRunningStats:
         return self.M2 / self.n if self.n > 1 else 1.0
 
     def normalize(self, x: float) -> float:
+        """Z-score ``x`` against the running mean and variance (with 1e-8 floor)."""
         return (x - self.mean) / (math.sqrt(self.variance) + 1e-8)
 
 
@@ -70,7 +73,19 @@ class WelfordRunningStats:
 # ---------------------------------------------------------------------------
 
 class REINFORCETrainer:
+    """REINFORCE++ trainer for the stabilizing-firm policy in THE_CRASH.
+
+    Loads ``model_name`` as a 4-bit (or 8-bit) QLoRA on GPU 0 for training and
+    keeps a frozen copy of the same base model on GPU 1 for the KL reference
+    and for non-stabilizing firm decisions. Each iteration: roll out
+    ``num_episodes`` ``BazaarWorld`` simulations in parallel, compute composite
+    rewards (profit, market-survival, price-floor adherence), normalise
+    advantages within timestep groups, and apply a token-level REINFORCE
+    update with a KL penalty against the frozen base.
+    """
+
     def __init__(self, model_name: str, args):
+        """Build the trainer: load LoRA + frozen base model, create checkpoint dir, set up the heartbeat monitor thread."""
         self.args = args
         self.model_name = model_name
         self.checkpoint_dir = f"checkpoints/{args.run_name or 'default'}"
@@ -225,11 +240,13 @@ class REINFORCETrainer:
         return response.startswith("{") and "supply_quantity" in response
 
     def heartbeat(self):
+        """Write the current epoch time to ``heartbeat_file`` so the monitor thread can detect stalls."""
         self.last_activity_time = time.time()
         with open(self.heartbeat_file, "w") as f:
             f.write(str(self.last_activity_time))
 
     def cleanup(self):
+        """Signal the monitor thread to exit; called from ``atexit``."""
         self.stop_monitoring = True
 
     def _monitor_loop(self):
@@ -404,6 +421,7 @@ CRITICAL: Always respond with a single, valid JSON object. Do not use markdown c
     # ── Episode collection ──────────────────────────────────────────────
 
     def collect_trajectories(self, num_episodes: int, iteration: int):
+        """Roll out ``num_episodes`` parallel ``BazaarWorld`` simulations and return one trajectory per (episode, agent step)."""
         t0 = time.time()
         all_trajs, all_survived, stats_list = [], [], []
         w_profit, w_survival, w_floor = self.reward_weights[:3]
@@ -899,6 +917,7 @@ CRITICAL: Always respond with a single, valid JSON object. Do not use markdown c
 # ---------------------------------------------------------------------------
 
 def main():
+    """CLI entry point: parse args, build a ``REINFORCETrainer``, run SFT warmup then the RL loop."""
     parser = create_argument_parser()
     parser.add_argument("--lr", type=float, default=1e-5)
     parser.add_argument("--num_episodes", type=int, default=32)
