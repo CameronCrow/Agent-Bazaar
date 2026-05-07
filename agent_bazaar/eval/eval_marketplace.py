@@ -1,3 +1,11 @@
+"""Multi-scenario evaluation runner.
+
+Iterates over the four B2C consumer scenarios — RACE_TO_BOTTOM,
+PRICE_DISCRIMINATION, RATIONAL_BAZAAR, BOUNDED_BAZAAR — running a full
+``BazaarWorld`` simulation for each and dumping per-step stats plus the
+final state to a JSON file under ``args.log_dir``. Used as a quick policy
+check after training.
+"""
 import json
 import os
 import argparse
@@ -6,6 +14,7 @@ from agent_bazaar.env.bazaar_env import BazaarWorld
 
 
 def run_eval(args):
+    """Run one full simulation per scenario and write a JSON summary keyed by scenario name."""
     results = {}
     scenarios = [
         "RACE_TO_BOTTOM",
