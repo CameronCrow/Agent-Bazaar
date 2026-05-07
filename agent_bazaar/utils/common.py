@@ -1,3 +1,13 @@
+"""Shared constants, persona definitions, and utility helpers.
+
+Holds the ``Message`` enum used by every agent's ``add_message`` to discriminate
+prompt types, the persona registries (firm, consumer, seller, sybil), the
+LEMON_MARKET quality scale (``QUALITY_DICT`` / ``V_MAX``), the GB2 income
+distribution helpers used to seed consumer skill levels, and the Saez optimal
+tax-rate calculator. Also exposes the persona-spec parsers consumed by
+``BazaarWorld`` to translate ``--firm-personas`` / ``--seller-personas`` CLI
+strings into per-agent assignments.
+"""
 from enum import Enum, auto
 from collections import Counter
 import random
@@ -10,6 +20,14 @@ from typing import List, Optional, Sequence, Tuple
 KEY = os.getenv('ECON_OPENAI')
 
 class Message(Enum):
+    """Discriminator for the kind of message an agent is recording or being asked to produce.
+
+    Each ``UPDATE_*`` value tags a prompt the agent will respond to;
+    each ``ACTION_*`` value tags the resulting decision recorded back into the
+    rolling history. Subclasses of ``LLMAgent`` switch on these in
+    ``add_message`` to format the user prompt and history line for each step.
+    """
+
     SYSTEM = 1
     UPDATE = 2
     ACTION = 3

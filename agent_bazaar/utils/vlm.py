@@ -1,3 +1,10 @@
+"""Vision-language-model backend for sending images plus text to Gemini.
+
+Currently only ``VertexBackend`` is provided; the file references symbols
+(``VLMBackend``, ``retry_with_exponential_backoff``, ``logger``) that are not
+imported here, so this module is incomplete and not used by the main
+simulator. Kept in-tree for the dashboard's planned screenshot-Q&A flow.
+"""
 from io import BytesIO
 from PIL import Image
 import os
@@ -13,6 +20,7 @@ class VertexBackend(VLMBackend):
     """Google Gemini API with Vertex backend"""
 
     def __init__(self, model_name: str, **kwargs):
+        """Construct a Gemini client bound to the Vertex backend (project ``pokeagent-011``, ``us-central1``)."""
         try:
             from google import genai
         except ImportError:

@@ -16,6 +16,7 @@ class ThreadCoordinator:
     """
 
     def __init__(self, thread_manager: ThreadManager):
+        """Bind to ``thread_manager`` and initialise empty GUI handles; ``show_gui`` builds the actual Tk window."""
         self.thread_manager = thread_manager
         self.root = None
         self.is_running = False
