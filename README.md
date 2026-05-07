@@ -4,15 +4,11 @@
 [License: MIT](https://opensource.org/licenses/MIT)
 [Tests](https://pytest.org/)
 
-<p align="center">
-  <img src="fig/teaser.png" alt="Agent Bazaar teaser" width="90%">
-</p>
+
 
 > *Left: base LLM agents fail — firms crash prices into bankruptcy (B2C), and a Sybil principal floods the market with deceptive listings (C2C). Right: aligned agents restore equilibrium — Stabilizing Firms hold a price floor; Skeptical Guardians detect and reject the Sybil cluster.*
 
-<p align="center">
-  <img src="fig/sim_design.png" alt="Agent Bazaar simulation design" width="90%">
-</p>
+
 
 > *Simulation architecture: B2C market (left) with Poisson consumer arrivals, firm pricing agents, and discovery limits; C2C market (right) with buyer/seller agents, Sybil principal, and reputation signals.*
 
@@ -24,7 +20,7 @@ We study two canonical failure modes. **THE_CRASH**: in B2C markets, LLM firms e
 
 For each failure mode, Agent Bazaar tests intervention mechanisms: **Stabilizing Firms** enforce a price floor against the undercutting spiral; **Skeptical Guardians** detect and reject deceptive listings. We evaluate frontier and open-weight models (3B–405B) across both scenarios and introduce the **Economic Alignment Score (EAS)**, a unified scalar aggregating stability, integrity, welfare, and profitability into a single cross-model metric.
 
-The simulator builds on infrastructure from [LLM Economist](https://github.com/sethkarten/LLM-Economist/) (consumer/firm scaffolding, the LLM-call layer) and extends it with agent-agent goods trading, firm/buyer/seller/Sybil agents, the EAS metric, and a Streamlit visualization dashboard.
+The simulator builds on infrastructure from [LLM Economist](https://github.com/sethkarten/LLM-Economist/) and extends it with agent-agent goods trading in different market structures, firm/buyer/seller/Sybil agents, and the EAS metric.
 
 ---
 
@@ -149,7 +145,7 @@ python -m agent_bazaar.main \
   --max-timesteps 10 --name local_test
 ```
 
-### Visualization Dashboard
+### Visualization Dashboard (WIP)
 
 After running a simulation, inspect results in the Streamlit dashboard:
 
@@ -378,7 +374,7 @@ Logs: `logs/exp1_<model>/`
 
 #### Experiment 1 — EAS × Model Size sweep
 
-Runs the full Exp1 matrix for every dense open-weight model listed in [`documentation/open_weights_models.json`](documentation/open_weights_models.json) via OpenRouter. Add or remove models by editing that file — each entry is `{"display_name": "...", "params_b": <float>, "slug": "<openrouter-slug>"}`. The repo ships with a single example entry; populate it with the models you want to sweep. Use `--models <substring> [<substring> …]` to filter the loaded list.
+Runs the full Exp1 matrix for every dense open-weight model listed in `[documentation/open_weights_models.json](documentation/open_weights_models.json)` via OpenRouter. Add or remove models by editing that file — each entry is `{"display_name": "...", "params_b": <float>, "slug": "<openrouter-slug>"}`. The repo ships with a single example entry; populate it with the models you want to sweep. Use `--models <substring> [<substring> …]` to filter the loaded list.
 
 ```bash
 # All models, 4 parallel workers
@@ -589,7 +585,7 @@ Any model accessible via the following backends is supported:
 | vLLM (local)               | `--service vllm --llm hf/model-id`               | Any HF model or LoRA alias                                     |
 
 
-The open-weight model list used by the EAS sweep scripts (`scripts/exp1_eas_sweep.py`, `scripts/exp2_eas_sweep.py`, `scripts/exp3_open_weights_sweep.py`) is loaded at runtime from [`documentation/open_weights_models.json`](documentation/open_weights_models.json). To add or remove models, edit that file — no code changes required.
+The open-weight model list used by the EAS sweep scripts (`scripts/exp1_eas_sweep.py`, `scripts/exp2_eas_sweep.py`, `scripts/exp3_open_weights_sweep.py`) is loaded at runtime from `[documentation/open_weights_models.json](documentation/open_weights_models.json)`. To add or remove models, edit that file — no code changes required.
 
 ---
 
