@@ -1,3 +1,14 @@
+"""``BazaarWorld``: the top-level environment that wires every simulation together.
+
+Owns the ``Ledger`` and ``Market``, instantiates firms / consumers /
+sellers / buyers / sybils based on the configured ``consumer_scenario``
+(THE_CRASH, RACE_TO_BOTTOM, RATIONAL_BAZAAR, LEMON_MARKET, ...), drives the
+per-timestep ``step`` loop in parallel via a thread pool, applies optional
+mid-run shocks (cost shock, sybil flood), and serialises the full state to
+``state_t<i>.json`` files plus the ``firm_attributes.json`` /
+``consumer_attributes.json`` / ``experiment_args.json`` companions consumed
+by the analyzer agent and dashboard.
+"""
 import logging
 import os
 import json
@@ -46,7 +57,19 @@ DEFAULT_PREFERENCES = {
 }
 
 class BazaarWorld:
+    """The simulator environment.
+
+    Constructs every agent, ledger, and market based on ``args``; drives one
+    step per call to ``step()``; persists state to disk every step. The
+    ``llm_model`` / ``llm_model_base`` split lets a trained LoRA serve
+    stabilizing firms while a frozen base model serves the rest of the agent
+    population (single-GPU multi-policy training). Branches sharply on
+    ``args.consumer_scenario`` — LEMON_MARKET uses sellers / buyers /
+    optional sybil principal; everything else uses firms + CES consumers.
+    """
+
     def __init__(self, args, llm_model=None, llm_model_base=None):
+        """Instantiate the world: parse ``args``, allocate ledger and market, build the agent population, optionally load a listing corpus, and prepare per-step bookkeeping."""
         # llm_model: LoRA model for stabilizing firms (trained)
         # llm_model_base: frozen base model for non-stabilizing firms/consumers
         # If llm_model_base is None, all agents use llm_model (single-GPU mode)
@@ -547,7 +570,7 @@ class BazaarWorld:
         logger.info(f"SHOCK APPLIED: sybil K {current_k} → {new_k} at t={self.timestep}")
 
     def step(self):
-        """Execute one timestep of the bazaar with parallel agent actions"""
+        """Run one full timestep: agent actions in parallel, market clearing, reputation/expense updates, optional shocks, and state persistence."""
         import concurrent.futures
 
         start_ledger = self.ledger.copy()
@@ -1528,6 +1551,7 @@ class BazaarWorld:
         return [by_name[name] for name in sorted(by_name)]
 
     def is_done(self):
+        """Return True when the run should halt: ``max_timesteps`` reached or every firm out of business."""
         if self.timestep >= self.args.max_timesteps:
             return True
         if not any(getattr(firm, "in_business", True) for firm in self.firms):
