@@ -1,3 +1,12 @@
+"""Firm agents for the B2C scenarios (THE_CRASH, RACE_TO_BOTTOM, RATIONAL_BAZAAR, etc.).
+
+Provides three concrete firms: ``FirmAgent`` (LLM-driven; sets prices, buys
+supply, allocates production each step), ``FixedFirmAgent`` (deterministic
+unit-cost-plus-markup baseline), and the ``stabilizing=True`` flavour of
+``FirmAgent`` that holds a price floor against the THE_CRASH undercutting
+spiral. Profit, expense, and revenue bookkeeping is centralised in
+``BaseFirmAgent`` so all variants land in the same per-timestep state record.
+"""
 # FIRM
 from agent_bazaar.market_core.market_core import Ledger, Market, Quote
 from typing import List, Dict, Any, Optional, Tuple
@@ -25,6 +34,7 @@ class BaseFirmAgent:
     EXPENSE_KEYS = ("supply_cost", "overhead_costs", "taxes_paid", "platform_fees")
 
     def __init__(self, args = None):
+        """Initialise shared firm state: in-business flag, reputation, fulfillment history, and step-level expense buckets."""
         self.args = args
         self.in_business = True
         self.reputation = 1.0  # Default perfect reputation
@@ -156,7 +166,7 @@ class BaseFirmAgent:
         return self.inventory["supply"]
 
     def post_quotes(self, prices: Dict[str, float]) -> List[Quote]:
-        """Shared implementation for posting quotes to market"""
+        """Post one Quote per good in inventory at the given price; skips zero-stock goods."""
         quotes = []
         for good, price in prices.items():
             if good in self.inventory and self.inventory[good] > 0:
@@ -171,7 +181,7 @@ class BaseFirmAgent:
         return quotes
 
     def pay_taxes(self, timestep: int, tax_rate: float) -> float:
-        """Pay taxes to the government"""
+        """Debit ``tax_rate * cash`` from the ledger; mark out of business if cash cannot cover it."""
         current_cash = self.cash
         taxes_due = max(0.0, current_cash * tax_rate)
         taxes_paid = taxes_due
@@ -203,7 +213,7 @@ class BaseFirmAgent:
         return base * scale
 
     def pay_overhead_costs(self, timestep: int) -> float:
-        """Pay overhead costs"""
+        """Debit per-step overhead from the ledger; mark out of business on insufficient funds."""
         overhead_costs = self.get_overhead_costs(timestep)
         current_cash = self.cash
         amount_paid = overhead_costs
@@ -233,6 +243,16 @@ class BaseFirmAgent:
         pass
 
 class FirmAgent(LLMAgent, BaseFirmAgent):
+    """LLM-driven firm that decides supply purchases, production, and prices each step.
+
+    Used in every B2C scenario. Setting ``stabilizing=True`` switches the
+    system prompt and unlocks the Best-N historical slab, producing the
+    "stabilizing firm" treatment that holds a target markup against
+    competitors undercutting in THE_CRASH. Otherwise the optional ``persona``
+    seeds an archetype (aggressive, conservative, etc.) drawn from
+    ``FIRM_PERSONA_DESCRIPTIONS``.
+    """
+
     def __init__(
         self,
         llm: str,
@@ -252,6 +272,7 @@ class FirmAgent(LLMAgent, BaseFirmAgent):
         persona: str = None,
         stabilizing: bool = False,
     ) -> None:
+        """Wire up the firm: ledger account with ``initial_cash``, per-good inventory slots, supply unit costs (sampled from ``DEFAULT_SUPPLY_UNIT_COSTS`` and ``args.max_supply_unit_cost`` if not provided), and the system prompt — stabilizing or persona-flavoured."""
         BaseFirmAgent.__init__(self)
         super().__init__(
             llm,
@@ -389,7 +410,7 @@ Rules:
     def set_price(
         self, timestep: int = None, market_data: Dict[str, Any] = None
     ) -> Dict[str, float]:
-        """LLM decides prices for each good"""
+        """Ask the LLM for a price per good given current inventory, cash, unit cost, and last-step market data."""
         self.logger.info(f"[ACTION] {self.name} performing action: set_price")
         self.add_message(timestep, Message.UPDATE_PRICE, market_data=market_data)
 
@@ -489,7 +510,7 @@ Rules:
         return (total_quantity, total_cost)
 
     def produce_goods(self, timestep: int):
-        """LLM decides how much to produce of each good"""
+        """Ask the LLM for a percentage allocation per good and convert all available supply into finished goods accordingly."""
         self.logger.info(f"[ACTION] {self.name} performing action: produce_goods")
         self.add_message(timestep, Message.UPDATE_PRODUCTION)
 
@@ -537,6 +558,7 @@ Rules:
         )
 
     def parse_firm_action(self, items: List[str]) -> tuple:
+        """Parse the combined supply/production/price LLM response, falling back to safe defaults per slice on failure."""
         n = len(self.goods)
         try:
             supply = self.parse_supply_purchase(items[:n])
@@ -996,7 +1018,7 @@ Rules:
 
     # Message handling for building prompts
     def add_message(self, timestep: int, m_type: Message, **kwargs) -> None:
-        """Add messages to build prompts for the LLM"""
+        """Format the per-step user prompt and historical context for ``m_type`` (UPDATE_PRICE / UPDATE_SUPPLY / UPDATE_PRODUCTION / UPDATE_FIRM_ACTION and their ACTION_* echoes)."""
         self.add_message_history_timestep(timestep)
         if m_type == Message.UPDATE_PRICE:
             # Prepare pricing decision prompt
@@ -1267,6 +1289,12 @@ Rules:
 
 
 class FixedFirmAgent(BaseFirmAgent):
+    """Deterministic baseline firm: prices at unit cost plus a fixed markup, buys whatever supply it can afford, splits production evenly across goods.
+
+    Used as a non-LLM control in ablations and as a substitute when no model
+    is available.
+    """
+
     def __init__(
         self,
         name: str,
@@ -1277,6 +1305,7 @@ class FixedFirmAgent(BaseFirmAgent):
         unit_costs: Dict[str, float] = None,
         markup: float = 0.50,
     ):
+        """Set up a baseline firm with the given per-good ``unit_costs`` (defaults to 1.0) and a constant ``markup`` added to compute prices."""
         BaseFirmAgent.__init__(self)
         self.name = name
         self.goods = goods  # List of goods this firm can produce

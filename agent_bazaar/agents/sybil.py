@@ -54,6 +54,7 @@ class SybilIdentity(SellerAgent):
         initial_cash: float = 1000.0,
         args=None,
     ) -> None:
+        """Construct one passive sybil identity with a seeded reputation and ``sybil=True`` marker for downstream stat logging."""
         super().__init__(
             name=name,
             goods=goods,
@@ -105,6 +106,7 @@ class DeceptivePrincipal(LLMAgent):
         args=None,
         llm_instance=None,
     ) -> None:
+        """Spin up the principal LLM, instantiate ``k`` ``SybilIdentity`` objects with reputation seeded at ``r0``, and assign each identity a stylistic system prompt drawn from ``stylistic_personas``."""
         provider_order = (
             getattr(args, "seller_openrouter_provider", None)
             or getattr(args, "openrouter_provider", None)
@@ -219,6 +221,7 @@ class DeceptivePrincipal(LLMAgent):
     # ------------------------------------------------------------------
 
     def add_message(self, timestep: int, m_type: Message, **kwargs) -> None:  # noqa: D401
+        """Record a principal-level decision: ``UPDATE_PRINCIPAL`` stores the user prompt, ``ACTION_PRINCIPAL`` echoes the chosen tier into history."""
         self.add_message_history_timestep(timestep)
 
         if m_type == Message.UPDATE_PRINCIPAL:

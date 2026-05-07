@@ -44,6 +44,7 @@ class SellerAgent(BaseFirmAgent):
         persona: Optional[str] = None,
         args=None,
     ) -> None:
+        """Set up an honest seller with a ledger account, an empty listing list, and the description-template ``persona``."""
         BaseFirmAgent.__init__(self)
         self.logger = logging.getLogger("main")
         self.name = name
@@ -180,6 +181,7 @@ class LLMSellerAgent(LLMAgent, SellerAgent):
         args=None,
         llm_instance=None,
     ) -> None:
+        """Compose ``SellerAgent`` and ``LLMAgent``: routes seller-specific args (``seller_llm`` / ``seller_port`` / ``seller_openrouter_provider``) and binds the honest-seller system prompt."""
         if args is None:
             raise ValueError("LLMSellerAgent requires args")
         SellerAgent.__init__(self, name, goods, initial_cash, ledger, market, persona, args)
@@ -236,6 +238,7 @@ class LLMSellerAgent(LLMAgent, SellerAgent):
         )
 
     def add_message(self, timestep: int, m_type: Message, **kwargs) -> None:
+        """Format the listing prompt (true quality + price guide) and the post-listing echo for ``m_type``."""
         if m_type == Message.UPDATE_LISTING:
             extend_history = kwargs.get("extend_history", True)
             quality = kwargs.get("quality", "unknown")

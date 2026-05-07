@@ -1,3 +1,14 @@
+"""Base class for every LLM-driven agent in the simulator.
+
+Wraps a model client (OpenAI / Gemini / OpenRouter / vLLM / Ollama) with the
+machinery every agent needs: rolling message history, JSON-only response parsing
+with retries and an optional parsing-agent fallback, prompt-algorithm dispatch
+(``io`` / ``cot`` / ``sc`` / ``mcts``), trajectory recording for RL, and the
+optional Best-N historical slab used by stabilizing firms and the sybil
+principal. ``FirmAgent``, ``CESConsumerAgent``, ``BuyerAgent``,
+``LLMSellerAgent``, and ``DeceptivePrincipal`` all subclass ``LLMAgent`` and
+override ``act`` / ``add_message`` for their decision step.
+"""
 import logging
 import os
 import re
@@ -14,6 +25,15 @@ import numpy as np
 
 
 class LLMAgent:
+    """Base class wrapping an LLM model client with prompt/parse plumbing.
+
+    Subclasses provide a system prompt, an ``add_message`` implementation that
+    formats the per-step user prompt and expected JSON schema, and an ``act``
+    method that calls ``act_llm`` to obtain the parsed action. Trajectories,
+    diary entries, and message history are tracked here so subclasses can stay
+    focused on their domain logic.
+    """
+
     def __init__(
         self,
         llm_type: str,
@@ -28,6 +48,15 @@ class LLMAgent:
         provider_order=None,
         service=None,
     ) -> None:
+        """Construct an LLM-backed agent.
+
+        ``llm_type`` selects the model family: any ``provider/model`` slug
+        routes through OpenRouter; bare names dispatch to OpenAI, Gemini, or a
+        local vLLM/Ollama server based on keyword. Pass ``llm_type="None"``
+        (or ``llm_instance``) to skip remote model construction; useful for
+        offline tests and rule-based fallbacks. ``args`` is the simulation
+        argparse namespace and is required.
+        """
         assert args is not None
 
         self.logger = logging.getLogger("main")
@@ -115,11 +144,13 @@ class LLMAgent:
 
     @property
     def token_usage(self) -> dict:
+        """Cumulative token usage from the underlying model client (or zeros if no LLM)."""
         if self.llm is None:
             return {"input_tokens": 0, "output_tokens": 0, "requests": 0}
         return self.llm.usage_stats
 
     def act(self) -> str:
+        """Subclass hook: produce this agent's action for the current step."""
         raise NotImplementedError
 
     def interview(self, question: str) -> str:
@@ -143,6 +174,7 @@ class LLMAgent:
         self.diary.append((timestep, entry))
 
     def init_message_history(self) -> None:
+        """Initialize an empty per-timestep message-history list with a t=0 placeholder."""
         # [{timestep: i, 'system_prompt': '', 'user_prompt': 'Historical timesteps: ', 'action': '' }, ...]
         # init first timestep
         self.message_history = [
@@ -159,6 +191,7 @@ class LLMAgent:
         return
 
     def add_message_history_timestep(self, timestep: int) -> None:
+        """Append a fresh message-history entry for ``timestep`` ready for subclass formatting."""
         assert self.system_prompt is not None
         new_msg_dict = {
             "timestep": timestep,
@@ -180,6 +213,7 @@ class LLMAgent:
     def get_historical_message(
         self, timestep: int, retry: bool = False, include_user_prompt: bool = True
     ) -> str:
+        """Build the user prompt: rolling history window, diary entries, Best-N slab, and the current step's question."""
         output = "Historical data:\n"
 
         # Include diary entries as in-context memory
@@ -213,6 +247,14 @@ class LLMAgent:
         retry: bool = False,
         on_parse_failure_return: Optional[Any] = None,
     ) -> list[float]:
+        """Run the LLM for ``timestep`` and return the parsed action keyed by ``keys``.
+
+        Dispatches to the prompt algorithm chosen at construction (``io``,
+        ``cot``, ``sc``, ``tot``, or ``mcts``). ``parse_func`` receives a list
+        of values aligned with ``keys`` and must return the typed action; on
+        repeated parse failure ``on_parse_failure_return`` is returned and the
+        trajectory entry is marked ``is_format_valid=False``.
+        """
         # concat user prompts from prev timesteps to get historical information for current timestep
         msg = self.get_historical_message(timestep, retry)
 
@@ -272,6 +314,14 @@ class LLMAgent:
             raise ValueError()
 
     def extract_keys_from_dict(self, d, keys):
+        """Pull the requested ``keys`` out of an LLM-produced dict, handling common aliases.
+
+        Recognises the recurring naming variants (``set_prices``/``pricing``/
+        ``prices`` for prices; ``production``/``produce_*`` for allocations;
+        ``supply_purchases`` for per-good quantities) and flattens nested
+        per-good objects into the flat ``price_food`` / ``produce_food`` /
+        ``supply_quantity_food`` keys the parsers expect.
+        """
         result = {}
 
         # Keys that denote nested structures already handled above; skip in flat iteration
@@ -626,6 +676,14 @@ Reformat the malformed JSON to match the expected format. Output must contain ev
         expected_format: Optional[str] = None,
         on_parse_failure_return: Optional[Any] = None,
     ) -> list[float]:
+        """Send one prompt to the LLM, parse the JSON response, and recursively retry on failure.
+
+        Keeps a trajectory record per call (system / user / response / keys /
+        reward) for downstream RL. On JSON failure it tries the parsing-agent
+        cleanup (when enabled) or a regex-based salvager before recursing up to
+        ``self.timeout`` attempts. ``on_parse_failure_return`` is the no-op
+        action returned if every retry fails.
+        """
         # Log when prompting an agent
         if depth == 0:
             self.logger.info(f"[PROMPT] Prompting agent: {self.name}")
@@ -905,6 +963,7 @@ Reformat the malformed JSON to match the expected format. Output must contain ev
         expected_format: Optional[str] = None,
         on_parse_failure_return: Optional[Any] = None,
     ) -> list[float]:
+        """Direct input/output prompting: one LLM call, parse, return."""
         return self.call_llm(
             msg,
             timestep,
@@ -924,6 +983,7 @@ Reformat the malformed JSON to match the expected format. Output must contain ev
         expected_format: Optional[str] = None,
         on_parse_failure_return: Optional[Any] = None,
     ) -> list[float]:
+        """Self-consistency: ``self.K`` chain-of-thought samples with majority vote on the parsed action."""
         llm_outputs = []
         for i in range(self.K):
             llm_output = self.prompt_cot(
@@ -956,6 +1016,7 @@ Reformat the malformed JSON to match the expected format. Output must contain ev
         expected_format: Optional[str] = None,
         on_parse_failure_return: Optional[Any] = None,
     ) -> list[float]:
+        """Chain-of-thought: append a short ``Let's think step by step`` rider before calling the LLM."""
         cot_prompt = (
             " Let's think step by step. Your thought should no more than 4 sentences."
         )
@@ -971,11 +1032,20 @@ Reformat the malformed JSON to match the expected format. Output must contain ev
         )
 
     def add_message(self, timestep: int, m_type: Message, **args) -> None:
+        """Subclass hook: format the per-step user prompt for ``m_type`` (e.g. UPDATE_PRICE, ACTION_BID)."""
         raise NotImplementedError
 
 
 class TestAgent(LLMAgent):
+    """Smoke-test agent that confirms the LLM service is reachable.
+
+    Constructs a single agent and sends one ``"test"`` prompt with exponential
+    backoff; raises ``RuntimeError`` if the service does not respond after
+    five attempts. Useful as a fail-fast at simulation startup.
+    """
+
     def __init__(self, llm: str, port: int, args):
+        """Connect to the configured LLM service and exit on first successful response."""
         super().__init__(llm, port, name="TestAgent", args=args)
         max_retries = 5  # Maximum attempts (including initial call)
         initial_delay = 1  # Starting delay in seconds

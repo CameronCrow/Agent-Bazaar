@@ -41,6 +41,7 @@ class BuyerAgent(LLMAgent):
         history_len: int = 3,
         timeout: int = 10,
     ) -> None:
+        """Wire up the buyer with infinite cash, an empty transaction history, and a system prompt seeded by ``persona``."""
         provider_order = (
             getattr(args, "buyer_openrouter_provider", None)
             or getattr(args, "openrouter_provider", None)
@@ -336,6 +337,7 @@ class BuyerAgent(LLMAgent):
         quality_label: str,
         timestep: int,
     ) -> None:
+        """Append a fulfilled purchase to ``transaction_history`` (with consumer-surplus = ``quality * V_MAX - price``)."""
         self.transaction_history.append(
             {
                 "timestep": timestep,
@@ -349,6 +351,7 @@ class BuyerAgent(LLMAgent):
 
     # LLMAgent abstract override
     def add_message(self, timestep: int, m_type: Message, **kwargs) -> None:
+        """Format the per-step buyer prompt for ``m_type``: bid prompts include the visible-listing observation, review prompts include the seller description and revealed quality."""
         if m_type == Message.UPDATE_BID:
             if kwargs.get("extend_history", True):
                 self.add_message_history_timestep(timestep)
