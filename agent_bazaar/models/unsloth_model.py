@@ -1,3 +1,11 @@
+"""Unsloth LoRA-trained model client for in-process batched inference.
+
+Used during RL training (REINFORCE++) when the policy under training serves
+agent decisions for the live simulator. A background batcher thread
+accumulates ``send_msg`` calls within a short window and dispatches them as a
+single ``model.generate`` batch, which is critical for keeping per-step
+latency manageable when the env fans 50+ agents out in parallel.
+"""
 from typing import Tuple, Optional, List
 from .base import BaseLLMModel
 import torch
@@ -24,6 +32,7 @@ class UnslothModel(BaseLLMModel):
         device=None,
         no_think: bool = False,  # Skip <think> block — output actions directly
     ):
+        """Wrap a pre-loaded Unsloth ``FastLanguageModel`` with a background batcher; ``no_think`` injects an empty ``<think></think>`` to skip reasoning blocks."""
         super().__init__(model_name, max_tokens, temperature)
         self.model = model
         self.tokenizer = tokenizer
@@ -186,6 +195,7 @@ class UnslothModel(BaseLLMModel):
         temperature: Optional[float] = None,
         json_format: bool = False,
     ) -> Tuple[str, bool]:
+        """Submit one chat-formatted prompt to the background batcher and block until a result is returned (5-min timeout)."""
         if self.heartbeat_func:
             self.heartbeat_func()
         if temperature is None:

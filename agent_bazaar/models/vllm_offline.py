@@ -1,3 +1,10 @@
+"""In-process vLLM client (no HTTP server) used during offline RL training.
+
+Sits next to ``UnslothModel`` in the training pipeline: Unsloth handles
+LoRA-decorated training; ``VLLMOfflineModel`` provides faster batched
+inference for evaluation rollouts. Uses ``gpu_memory_utilization=0.4`` to
+share the GPU with the training process.
+"""
 from typing import Tuple, Optional, List
 from .base import BaseLLMModel
 import torch
@@ -9,6 +16,7 @@ class VLLMOfflineModel(BaseLLMModel):
     def __init__(
         self, model_path: str, max_tokens: int = 1000, temperature: float = 0.7
     ):
+        """Load a model from ``model_path`` directly into a vLLM ``LLM`` engine; sets a stop token of ``}`` for JSON outputs."""
         super().__init__(model_path, max_tokens, temperature)
         from vllm import LLM, SamplingParams
 
@@ -31,6 +39,7 @@ class VLLMOfflineModel(BaseLLMModel):
         temperature: Optional[float] = None,
         json_format: bool = False,
     ) -> Tuple[str, bool]:
+        """Generate one completion through the in-process vLLM engine; optionally extract a JSON object from the result."""
         from vllm import SamplingParams
 
         combined_prompt = f"{system_prompt}\n{user_prompt}"
